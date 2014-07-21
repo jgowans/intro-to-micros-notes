@@ -30,7 +30,7 @@ all: main.pdf
 # missing file reference and interactively asking you for an alternative.
 
 main.pdf: 
-	latexmk -pdf -pdflatex="pdflatex -interactive=nonstopmode " -use-make intro_to_micros_notes.tex
+	latexmk -pdf -pdflatex="pdflatex -interactive=nonstopmode --shell-escape" -use-make intro_to_micros_notes.tex
 
 clean:
 	latexmk -CA
