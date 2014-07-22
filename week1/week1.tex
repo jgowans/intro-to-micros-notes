@@ -3,8 +3,64 @@
 \subsection{What is a microcontroller?}
 The microcontroller can be understood by comparing it to something you are already very familiar with: the computer. Both a microcontroller and a computer can be modeled as a black box which takes in data and instructions, performs processing, and provides output.
 \begin{figure}
-\includesvg[width=0.7\textwidth]{processing}
+  \centering
+\includegraphics[width=0.7\textwidth]{./week1/processing}
 \end{figure}
+In order to do this, a micro has some of the same internals as a computer:
+\begin{itemize}
+  \item CPU: Capable of doing arithmatic and logic operations. Operate on data. Execute instructions. 
+  \item Non-volatile memory (Flash): Holding information which must not be lost: program code.
+  \item Volatile memory (RAM): Holding information which must be able to change, like program variables.
+  \item Ports: Ways to get signals in and out of the system
+\end{itemize}
+However, these resources are typically orders of magnitude smaller or a micro than on a conventional computer. A micro makes up for this lack of resources with a small size, low power and low cost. 
+A computer is typically defined as a multi-purpose, flexible unit able to do computation. A microcontroller on the other hand typically is hard-coded to do one specific job.
+
+The micro we will be using is the STM32F051C6. It is manufactured by ST Microelectronics, but has an ARM Cortex-M0 CPU. ARM designed the CPU (specified how the transistors connect together). ST then takes this CPU design, adds it to their design foe all of the other bits of the micro (flash, RAM, ports and much much more) and then produces the chip.
+
+\subsection{Development board block diagram}
+
+\subsection{Programmer's Model of the CPU}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{./week1/programmers_model_v0.pdf}
+\end{figure}
+The CPU consists of CPU registers, which the CPU has the ability to operate on. A CPU register is a block of storage, 32 bits big which lives in the CPU. The ARM Cortex-M0 has 16 such registers. 
+The instructions which the CPU can perform typically take registers as inputs and have registers as outputs. Examples:
+\begin{enumerate}
+  \item adding the contents of r0 and r1 and storing the result in R6
+  \item copying the contents of R3 into R0
+  \item doing a logical XOR of the contents of R3 with the contents of R4 and storing the result in R3
+  \item moving the number 42 into R5
+\end{enumerate}
+
+\subsection{Writing and compiling code}
+In order to get the CPU to do some of what we've discussed above, it needs to have code loaded onto it to run. We write code in a language called assembly. Assembly is a human-readable language. A program is made up of a sequence of instruction; each instruction gets executed by the CPU. It's quite easy to see what each instruction does by reading the program.  The complete instruction set is located in the Programming Manual. You must be familiar with this document! Examples of instruction which carry out the tasks listed above are:
+\begin{enumerate}
+  \item ADDS R6, R0, R1
+  \item MOV R0, R3
+  \item EORS R3, R3, R4
+  \item MOV R5, \#42
+\end{enumerate}
+The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Our nice human-readable assembly code must be compiled to machine code. Machine code is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
+For example, \textit{ADDS R6, R0, R1} compiles to \textit{(opcode for ADDS)(R1)(R0)(R6)} = \textit{ 0001100 001 000 110 } = 0x1846.
+The opcodes for each instruction are detailed in the ARMv6-M Architecture Reference Manual.
+All of the instructions in the program are 16 bits long and are stored sequentially after one another in flash memory. 
+
+
+\subsection{Memory Model}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{./week1/memory_model_v0.pdf}
+  \caption{Simplified STM32F051C6 memory map. Note how all addresses are 32 bits. The blocks are very much not to scale. Source: datasheet, Figure 9}
+\end{figure}
+The memory of a device can be though of as a very long row of post boxes along a street. Each post box has an address, and each post box can have data put into it or taken out. The amount of data that each post box can hold is 8 bits, or one byte. 
+The address of each post box is 32 bits long, meaning that addresses range from 0 (0x00000000) to just over 4 billion (0xFFFFFFFF). In actual fact, the \emph{vast} majority of these addresses do not have a post box at them. These addresses are said to be unimplemented. 
+Only very small sections of this address space are implemented and can actually be read from or written to.
+The sections which we are interested in are flash, RAM and peripherals (more on these later). Flash and RAM are contiguous blocks of memory, with a start address and an end address. \\
+
+Once our assembly code has been written and compiled to machine code, the computer which loads the code onto the micro has to be told what addresses to place the code at. The code should be placed starting at the beginning of flash. 
+
 
 \subsection{A basic model of the STM32F051}
 
@@ -12,6 +68,7 @@ The microcontroller can be understood by comparing it to something you are alrea
 The microcontroller which we will be using is the STM32F051C6. At the core of this micro is it's CPU, which is called the Cortex-M0 and is designed by Advanced RISC Machines (ARM).a]]
 
 It's been said that the ARM Cortex-M0 is a 32-bit processor. For comparison, the procesor which we used in this course previously (MC9S08GT16A) was an 8-bit processor. Your personal computer probably has a 64-bit CPU. 16-bit CPUs are also quite common. So what exactly does it mean when we say that the processor is 32-bits? Essentially, the number of bits which a processor is said to be referes to the size of the data bus. In other words: the amount of data which the processor is able to move around internally or perform arithmetic and logic operations on. Hence, with a 32-bit processor, we can move 32 bits of data from one spot in memory to another in just once instruction. If you had a 8-bit processor, it would cost 4 instructions to move 32 bits of data around.  
+
 
 
 \subsection{A Short History of ARM}
