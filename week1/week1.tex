@@ -1,4 +1,4 @@
-\section{Defining a Microcontroller}
+\section{Week 1}
 
 \subsection{What is a microcontroller?}
 The microcontroller can be understood by comparing it to something you are already very familiar with: the computer. Both a microcontroller and a computer can be modeled as a black box which takes in data and instructions, performs processing, and provides output.
@@ -16,37 +16,57 @@ In order to do this, a micro has some of the same internals as a computer:
 However, these resources are typically orders of magnitude smaller or a micro than on a conventional computer. A micro makes up for this lack of resources with a small size, low power and low cost. 
 A computer is typically defined as a multi-purpose, flexible unit able to do computation. A microcontroller on the other hand typically is hard-coded to do one specific job.
 
-The micro we will be using is the STM32F051C6. It is manufactured by ST Microelectronics, but has an ARM Cortex-M0 CPU. ARM designed the CPU (specified how the transistors connect together). ST then takes this CPU design, adds it to their design foe all of the other bits of the micro (flash, RAM, ports and much much more) and then produces the chip.
+The micro we will be using is the STM32F051C6. It is manufactured by ST Microelectronics, but has an ARM Cortex-M0 CPU. ARM designed the CPU (specified how the transistors connect together). ST then takes this CPU design, adds it to their design for all of the other bits of the micro (flash, RAM, ports and much much more) and then produces the chip.
 
 \subsection{Development board block diagram}
+The development board consists of modules which connect to the microcontroller. Most of these modules are optional in that they are not required for the microcontroller to run. We will develop code later in the course to interface with some of these modules. Those which are not optional are the voltage regulator and the debugger.
 
-\subsection{Programmer's Model of the CPU}
 \begin{figure}
   \centering
-  \includegraphics[width=0.9\textwidth]{./week1/programmers_model_v0.pdf}
+  \includegraphics[width=\textwidth]{./week1/dev_board_unplugged.pdf}
+  \caption{Modules on the dev board as seen when top boards unplugged}
 \end{figure}
-The CPU consists of CPU registers, which the CPU has the ability to operate on. A CPU register is a block of storage, 32 bits big which lives in the CPU. The ARM Cortex-M0 has 16 such registers. 
-The instructions which the CPU can perform typically take registers as inputs and have registers as outputs. Examples:
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{./week1/dev_board_plugged_in.pdf}
+  \caption{Modules on the dev board as seen when top boards plugged in}
+\end{figure}
+
+The debugger is essentially another microcontroller which is able to pass information between a computer and a target microcontroller. 
+The interface to the computer is a USB connection, and the interface to the target is a protocol called Serial Wire Debug (SWD) which is similar to JTAG. For now, we will forget about all of the other modules on the dev board and consider our system to be a computer talking to a debugger talking to a target micro, as shown in \autoref{fig:debugger_to_micro}. 
+
+\begin{figure}[t]
+  \includegraphics[width=\textwidth]{./week1/debugger_to_micro.pdf}
+  \caption{Highly simpified diagram showing how micro and computer communicate}
+  \label{fig:debugger_to_micro}
+\end{figure}
+
+Our attention will now turn to just the target micro.
+
+\subsection{Programmer's Model of the CPU}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\textwidth]{./week1/programmers_model_v0.pdf}
+  \caption{The most simplified view of the internals of the STM32F051}
+\end{figure}
+A simple model of a CPU is a set of CPU registers, an Arithmetic and Logic Unit (ALU) and a control Unit. The CPU registers are blocks of storage each 32 bits wide which the CPU has the ability to operate on. The ARM Cortex-M0 has 16 such registers. 
+The ALU is that performs the operations on the registers. It can take data from registers as inputs, do very basic processing and store the result in CPU registers. 
+The control unit manages execution by telling the ALU what to do. Together, the registers, ALU and control are able to execute instructions. 
+Examples:
 \begin{enumerate}
-  \item adding the contents of r0 and r1 and storing the result in R6
+  \item adding the contents of R0 and R1 and storing the result in R6
   \item copying the contents of R3 into R0
   \item doing a logical XOR of the contents of R3 with the contents of R4 and storing the result in R3
   \item moving the number 42 into R5
 \end{enumerate}
 
-\subsection{Writing and compiling code}
-In order to get the CPU to do some of what we've discussed above, it needs to have code loaded onto it to run. We write code in a language called assembly. Assembly is a human-readable language. A program is made up of a sequence of instruction; each instruction gets executed by the CPU. It's quite easy to see what each instruction does by reading the program.  The complete instruction set is located in the Programming Manual. You must be familiar with this document! Examples of instruction which carry out the tasks listed above are:
-\begin{enumerate}
-  \item ADDS R6, R0, R1
-  \item MOV R0, R3
-  \item EORS R3, R3, R4
-  \item MOV R5, \#42
-\end{enumerate}
-The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Our nice human-readable assembly code must be compiled to machine code. Machine code is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
-For example, \textit{ADDS R6, R0, R1} compiles to \textit{(opcode for ADDS)(R1)(R0)(R6)} = \textit{ 0001100 001 000 110 } = 0x1846.
-The opcodes for each instruction are detailed in the ARMv6-M Architecture Reference Manual.
-All of the instructions in the program are 16 bits long and are stored sequentially after one another in flash memory. 
-
+ARM defines datatypes for a 32 bit CPU as follows:
+\begin{itemize}
+  \item byte: 8 bits
+  \item halfword: 16 bits
+  \item word: 32 bits
+  \item doubleword: 64 bits
+\end{itemize}
 
 \subsection{Memory Model}
 \begin{figure}
@@ -61,6 +81,41 @@ The sections which we are interested in are flash, RAM and peripherals (more on 
 
 Once our assembly code has been written and compiled to machine code, the computer which loads the code onto the micro has to be told what addresses to place the code at. The code should be placed starting at the beginning of flash. 
 
+\subsection{Writing and compiling code}
+In order to get the CPU to do some of what we've discussed above, it needs to have code loaded onto it to run. We write code in a language called assembly. Assembly is a human-readable language. A program is made up of a sequence of instruction; each instruction gets executed by the CPU. It's quite easy to see what each instruction does by reading the program.  The complete instruction set is located in the Programming Manual. You must be familiar with this document! Examples of instruction which carry out the tasks listed above are:
+\begin{enumerate}
+  \item ADDS R6, R0, R1
+  \item MOV R0, R3
+  \item EORS R3, R3, R4
+  \item MOV R5, \#42
+\end{enumerate}
+The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Our nice human-readable assembly code must be compiled to machine code. Machine code is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
+For example, \textit{ADDS R6, R0, R1} compiles to \textit{(opcode for ADDS)(R1)(R0)(R6)} = \textit{ 0001100 001 000 110 } = 0x1846.
+The opcodes for each instruction are detailed in the ARMv6-M Architecture Reference Manual.
+All of the instructions in the program are 16 bits long and are stored sequentially after one another in flash memory. 
+
+\subsection{Instruction Sets}
+An instruction set is the collection of all of the instructions which a processor can execute. 
+The ARM Cortex-M0 uses the ARMv6-M architecture and this architecture supports the Thumb instruction set (as opposed to Thumb-2 or ARM). 
+Thumb contains about \emph{XXX} instructions, each of which is 16 bits long. \\
+
+Higher end ARM processors such as the Cortex-M3 or Cortex-M4 support the ARMv7-M architecture which allows multiple instruction sets to be supported by the processor. 
+The ability to support multiple instruction sets requires \emph{interworking}. Interworking is the ability to specify to the CPU which instruction set to use. 
+While our ARM Cortex-M0 only supports the Thumb instruction set, there is no need for interworking, yet the cabability has still been incorperated into the architecture to allow for compatability to other processors. 
+This means that although our processor only supports one instruction set (Thumb), we have to explicity tell it that we are using that instruction set. 
+
+
+\subsection{Executing Code}
+Once the code has been loaded onto the microcontroller, it will execute one instruction after the next. 
+CPU register R15 is reserved for keeping track of where the micro is in execution. It is known as the Program Counter (PC).
+The PC always points to the instruction which is ABOUT to be executed. Hence, when your micro boots up, before it has executed anything, the PC will point to the first instruction to be executed.
+By ``point to'' we mean that it holds the address of the instruction. 
+
+As each instruction in the ARM Cortex-M0 instruction set it 16 bits (aka: half a word) long, ARM have implemented a rule that all instructions must be half word alligned. In other words, the address of the instruction must be divisible by 2 bytes. Legal addresses for instructions are hence, 0x02, 0x04, 0x06, 0x08 ... etc. 
+This means that the least significant bit (bit 0) of the PC register is unused in specifcying the address of an instruction. 
+Hence, it has been assigned another use. Specifically, to indicate the type of instruction which is being executed. 
+
+
 
 \subsection{A basic model of the STM32F051}
 
@@ -74,8 +129,3 @@ It's been said that the ARM Cortex-M0 is a 32-bit processor. For comparison, the
 \subsection{A Short History of ARM}
 Acorn
 
-\section{Memory Model}
-
-\section{CPU Model}
-
-\section{Running Code}
