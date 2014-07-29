@@ -5,6 +5,8 @@ The microcontroller can be understood by comparing it to something you are alrea
 \begin{figure}
   \centering
 \includegraphics[width=0.7\textwidth]{./week1/processing}
+\caption{Basic block diagram of a processing device}
+\label{fig:processing_block}
 \end{figure}
 In order to do this, a micro has some of the same internals as a computer:
 \begin{itemize}
@@ -13,23 +15,31 @@ In order to do this, a micro has some of the same internals as a computer:
   \item Volatile memory (RAM): Holding information which must be able to change, like program variables.
   \item Ports: Ways to get signals in and out of the system
 \end{itemize}
-However, these resources are typically orders of magnitude smaller or a micro than on a conventional computer. A micro makes up for this lack of resources with a small size, low power and low cost. 
+However, these resources are typically orders of magnitude smaller or a micro than on a conventional computer. A micro makes up for this lack of resources with a small size, low power and low cost. A comparison of the characteristics can be seen in \autoref{table:specs_comp}.
 A computer is typically defined as a multi-purpose, flexible unit able to do computation. A microcontroller on the other hand typically is hard-coded to do one specific job.
 
 The micro we will be using is the STM32F051C6. It is manufactured by ST Microelectronics, but has an ARM Cortex-M0 CPU. ARM designed the CPU (specified how the transistors connect together). ST then takes this CPU design, adds it to their design for all of the other bits of the micro (flash, RAM, ports and much much more) and then produces the chip.
+
+\begin{table}
+\begin{tabu}{ >{\textbf}c | c  c  c  c  c  c }
+  & \textbf{CPU} & \textbf{RAM} & \textbf{Non-volatile} & \textbf{Power} & \textbf{Size/Mass} & \textbf{Cost} \\
+  \hline
+  \textbf{Computer} & Dual, 3 GHz & 4 GiB & 500 GB & 100 W & Large & R 5000 \\
+  \textbf{Micro} & 48 MHz & 8 KiB & 32 KiB & 50 mW & Small & R 15 \\
+\end{tabu}
+\caption{Comparison of specs of entry level computer to STM32F051C6.}
+\label{table:specs_comp}
+\end{table}
 
 \subsection{Development board block diagram}
 The development board consists of modules which connect to the microcontroller. Most of these modules are optional in that they are not required for the microcontroller to run. We will develop code later in the course to interface with some of these modules. Those which are not optional are the voltage regulator and the debugger.
 
 \begin{figure}
   \centering
-  \includegraphics[width=\textwidth]{./week1/dev_board_unplugged.pdf}
-  \caption{Modules on the dev board as seen when top boards unplugged}
-\end{figure}
-\begin{figure}
-  \centering
+  \includegraphics[width=\textwidth]{./week1/dev_board_unplugged.pdf}\\
+  \vspace{3mm}
   \includegraphics[width=\textwidth]{./week1/dev_board_plugged_in.pdf}
-  \caption{Modules on the dev board as seen when top boards plugged in}
+  \caption{Modules on the dev board as seen when top boards unplugged or plugged in}
 \end{figure}
 
 The debugger is essentially another microcontroller which is able to pass information between a computer and a target microcontroller. 
@@ -84,13 +94,19 @@ Once our assembly code has been written and compiled to machine code, the comput
 \subsection{Writing and compiling code}
 In order to get the CPU to do some of what we've discussed above, it needs to have code loaded onto it to run. We write code in a language called assembly. Assembly is a human-readable language. A program is made up of a sequence of instruction; each instruction gets executed by the CPU. It's quite easy to see what each instruction does by reading the program.  The complete instruction set is located in the Programming Manual. You must be familiar with this document! Examples of instruction which carry out the tasks listed above are:
 \begin{enumerate}
-  \item ADDS R6, R0, R1
-  \item MOV R0, R3
-  \item EORS R3, R3, R4
-  \item MOV R5, \#42
+  \item \texttt{ADDS R6, R0, R1}
+  \item \texttt{MOV R0, R3}
+  \item \texttt{EORS R3, R3, R4}
+  \item \texttt{MOVS R5, \#42}
 \end{enumerate}
-The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Our nice human-readable assembly code must be compiled to machine code. Machine code is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
-For example, \textit{ADDS R6, R0, R1} compiles to \textit{(opcode for ADDS)(R1)(R0)(R6)} = \textit{ 0001100 001 000 110 } = 0x1846.
+The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Assembly code must be compiled to machine code. A machine code instruction is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
+For example, assume that we wanted to ascertain the machine code representation of the instruction \texttt{ADDS R6, R0, R1}. An extact from the ARMv6-M Architecture Reference Manual is shown in \autoref{fig:adds_encoding} where Rd is the destination register and Rm and Rn are the source registers of the add. It can easily be seen that the instruction would compile to\texttt{ 0001100 001 000 110 = 0x1846}.
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{./week1/adds_encoding}
+\caption{An encoding of the ADDS instruction}
+\label{fig:adds_encoding}
+\end{figure}
 The opcodes for each instruction are detailed in the ARMv6-M Architecture Reference Manual.
 All of the instructions in the program are 16 bits long and are stored sequentially after one another in flash memory. 
 
