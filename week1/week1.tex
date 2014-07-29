@@ -17,18 +17,20 @@ In order to do this, a micro has some of the same internals as a computer, shown
   \item Ports: Interfaces for data to move in and out of the micro. This allow it to communicate with the outside world. 
 \end{itemize} 
 These resources are typically orders of magnitude smaller or a micro than on a conventional computer. A micro makes up for this lack of resources with a small size, low power and low cost. A comparison of the characteristics can be seen in \autoref{table:specs_comp}.
-A computer is typically defined as a multi-purpose, flexible unit able to do computation. A microcontroller on the other hand typically is hard-coded to do one specific job.
+A computer is typically defined as a multi-purpose, flexible unit able to do computation. A microcontroller on the other hand typically is hard-coded to do one specific job.\\
 
 \begin{table}
 \begin{tabu}{ >{\textbf}c | c  c  c  c  c  c }
   & \textbf{CPU} & \textbf{RAM} & \textbf{Non-volatile} & \textbf{Power} & \textbf{Size/Mass} & \textbf{Cost} \\
   \hline
-  \textbf{Computer} & Dual, 3 GHz & 4 GiB & 500 GB & 100 W & Large & R 5000 \\
+  \textbf{Computer} & Dual, 3 GHz & 4 GiB & 500 GB & 100 W & Large & R 3000 \\
   \textbf{Micro} & 48 MHz & 8 KiB & 32 KiB & 50 mW & Small & R 15 \\
 \end{tabu}
 \caption{Comparison of specs of entry level computer to STM32F051C6.}
 \label{table:specs_comp}
 \end{table}
+
+The terms \textit{microcontroller} and \textit{microprocessor} are different and should not be used interchangably. A microprocessor is an IC which is able to perform computation, but requires external memory and perihperals to function. A microcontroller has the memory and perihperals built into it, allowing it to be fully independant. Furthermore, the interface in and out of a microprocessor is mainly just an address and data bus. In a microcontroller, these busses are internal to the device. The interfaces in and out of a microcontroller are configurable to be a wide variety of communication standards.\\
 
 The micro we will be using is the STM32F051C6. It is manufactured by ST Microelectronics, but has an ARM Cortex-M0 CPU. ARM designed the CPU (specified how the transistors connect together). ST then takes this CPU design, adds it to their design for all of the other bits of the micro (flash, RAM, ports and much much more) and then produces the chip.
 
@@ -108,9 +110,9 @@ This section will explore some CPU architectures and compare them to the archite
 
 The Cortex-M0 makes use of a Von Neumann architecture. This means that there is a single bus which connects all perihperals inside the microcontroller. The implication of this is that the CPU cannot fetch an instruction from flash at the same time as it moves data in or out of RAM. This limitation allows for a much simpler architecture.
 
-Other microcontrollers (even others in the Cortex-M series like the Cortex-M3) follow a Harvard architecture, meaning that there are seperate busses used for fetching instructions and moving data around. This allows faster execution, but necessitates greater complexity and more transistors. 
+Other microcontrollers (even others in the Cortex-M series like the Cortex-M3) follow a Harvard architecture, meaning that there are seperate busses used for fetching instructions and moving data around. This allows faster execution as instructions can be fetched at the same time as data is loaded or stored. However, it necessitates greater complexity and more transistors. 
 
-\subsection{Memory Model}
+\chapter{Memory Model}
 \begin{figure}
   \centering
   \includegraphics[width=0.6\textwidth]{./week1/memory_model_v0.pdf}
