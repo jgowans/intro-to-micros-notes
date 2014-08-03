@@ -2,7 +2,7 @@
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.9\textwidth]{./week1/programmers_model_v0.pdf}
+  \includegraphics[width=\textwidth]{./week1/programmers_model_v0.pdf}
   \caption{The most simplified view of the internals of the STM32F051}
   \label{fig:prog_mod_v0}
 \end{figure}
@@ -30,40 +30,43 @@ A computer is typically defined as a multi-purpose, flexible unit able to do com
 \label{table:specs_comp}
 \end{table}
 
-The terms \textit{microcontroller} and \textit{microprocessor} are different and should not be used interchangably. A microprocessor is an IC which is able to perform computation, but requires external memory and perihperals to function. A microcontroller has the memory and perihperals built into it, allowing it to be fully independant. Furthermore, the interface in and out of a microprocessor is mainly just an address and data bus. In a microcontroller, these busses are internal to the device. The interfaces in and out of a microcontroller are configurable to be a wide variety of communication standards.\\
+The terms \textit{microcontroller} and \textit{microprocessor} are different and should not be used interchangeably. A micro\textit{processor} is an IC which is able to perform computation, but requires external memory and peripherals to function. A micro\textit{controller} has the memory and peripherals built into it, allowing it to be fully independent. Furthermore, the interface in and out of a microprocessor is mainly just an address and data bus. In a microcontroller, these busses are internal to the device. The interfaces in and out of a microcontroller are configurable to be a wide variety of communication standards. This self-contained nature and ability to deal with a wide variert of signals allows a microcontroller to (as the name suggest) be embedded in a larger system and perform control and monitoring functions.\\
 
 The micro we will be using is the STM32F051C6. It is manufactured by ST Microelectronics, but has an ARM Cortex-M0 CPU. ARM designed the CPU (specified how the transistors connect together). ST then takes this CPU design, adds it to their design for all of the other bits of the micro (flash, RAM, ports and much much more) and then produces the chip.
 
 \subsection{Development board block diagram}
 The development board consists of modules which connect to the microcontroller. Most of these modules are optional in that they are not required for the microcontroller to run. We will develop code later in the course to interface with some of these modules. Those which are not optional are the voltage regulator and the debugger.
-Following is a breif discussion of the purpose of each of the dev board modules (peripherals).
+Following is a brief discussion of the purpose of each of the dev board modules (peripherals).
 
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{./week1/dev_board_unplugged.pdf}\\
   \vspace{3mm}
   \includegraphics[width=\textwidth]{./week1/dev_board_plugged_in.pdf}
-  \caption{Modules on the dev board as seen when top boards unplugged or plugged in}
+  \caption{Modules on the dev board as seen when top boards unplugged or plugged in.}
 \end{figure}
 
 \begin{itemize}
   \item STM32F051C6: This is the target microcontroller. It is connected to everything else on the board and it is where the code which we develop will execute. 
-  \item The debugger is essentially another microcontroller which is able to pass information between a computer and a target microcontroller. The interface to the computer is a USB connection, and the interface to the target is a protocol called Serial Wire Debug (SWD) which is similar to JTAG. 
+  \item Debugger: this is essentially another microcontroller running special code on it which allows it to be able to pass information between a computer and the target microcontroller. The interface to the computer is a USB connection, and the interface to the target is a protocol called Serial Wire Debug (SWD) which is similar to JTAG. The specific type of debugger which we have is a ST-Link.
   \item Regulator: A MCP1702-33/T0 chip. This converts the 5 V provided by the USB port into 3.3 V suitable for running most of the circuitry on the board. 
   \item LEDs: One byte of LEDs, active high connected to the lower byte of port B.
-  \item Push buttons: Active low push buttons connected to the lower nybble of port A.
+  \item Push buttons: Active low push buttons connected to the lower nibble of port A.
   \item Pots: 2 x 10K (or there abouts) potentiometers connected to PA5 and PA6.
   \item LCD Screen: A 16x2 screen connected to the micro in 4-bit mode. Used to display text.
   \item LCD contrast pot: The output of this potentiometer connects to the contrast pin of the LCD screen, hence allowing contrast adjustment.
   \item MAX232: This chips translates between TTL or CMOST logic level UART traffic and bi-polar higher voltage RS-232 traffic. Used for industrial communications links.
-  \item USB for comms: The header allows intercapting of the UART traffic before it gets to the MAX232 and convertin it to USB traffic through a small board which plugs into that header. When this facility is not being used, the jumpers on the header should be placed to allow the UART traffic to make its way to the MAX232.
+  \item USB for comms: The header allows intercepting of the UART traffic before it gets to the MAX232 and converting it to USB traffic through a small board which plugs into that header. When this facility is not being used, the jumpers on the header should be placed to allow the UART traffic to make its way to the MAX232.
   \item Temperature sensor: A TC74-A0 $I^2C$ temperature sensor.
   \item Crystal: 8 MHz quartz oscillator with 10 pF caps for removing high frequency harmonics. 
-  \item EEPROM: A 25LC640A 64Kb Electronically Erasable and Programmable Read Only Memory SPI chip.
-  \item RG LED: Common cathod Red/Green LED
+  \item EEPROM: A 25LC640A 64Kb Electronically Erasable and Programmable Read Only Memory (EEPROM) chip which communicates over SPI.
+  \item RG LED: Common cathode Red/Green LED.
 \end{itemize}
 
-    For now, we will forget about all of the other modules on the dev board and consider our system to be a computer talking to a debugger talking to a target micro, as shown in \autoref{fig:debugger_to_micro}. 
+
+The full circuit schematic for the board follows. 
+For now, we will forget about all of the other modules on the dev board and consider our system to be a computer talking to a debugger talking to a target micro, as shown in \autoref{fig:debugger_to_micro}. 
+This is the most basic system which must be understood to allow us to load code onto the target microcontroller.
 
 \begin{figure}[t]
   \includegraphics[width=\textwidth]{./week1/debugger_to_micro.pdf}
@@ -71,22 +74,33 @@ Following is a breif discussion of the purpose of each of the dev board modules 
   \label{fig:debugger_to_micro}
 \end{figure}
 
-This is the most basic system which must be understood to allow us to load code onto the target microcontroller.
+\afterpage{
+  \begin{landscape}
+  %\begin{figure}
+    \centering
+    \includepdf[pages={1}, angle=90]{./week1/circuit_sch.pdf}
+ % \end{figure}
+ \end{landscape}
+} 
+
 
 
 
 \chapter{The ARM Cortex-M0}
 
-\subsection{Programmer's Model of the CPU}
+There are many interesting blocks inside the STM32F051. However, the ARM Cortex-M0 CPU is certainly the most interesting of the lot. This is where all processing happens, hence this is where the instructions which we write will run. It is therefore essential that we have an intricate understanding of the CPU so that we may write useful code for it.
+In \autoref{fig:prog_mod_v0} we saw that the basic components of our micro were a CPU, flash, RAM and ports. This chapter seeks to explore the CPU in some detail.
+
+\section{Programmer's Model of the CPU}
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.9\textwidth]{./week1/programmers_model_v1.pdf}
   \caption{A view of the internals of the STM32F051 with the ARM Cortex-M0 expanded}
   \label{fig:prog_mod_v1}
 \end{figure}
-In \autoref{fig:prog_mod_v0} we saw that the basic components were a CPU, flash, RAM and ports. This chapter seeks to explore the CPU in some detail. The expanded view of the CPU which will now be discussed can be seen in \autoref{fig:prog_mod_v1}. This simple model of a CPU is a set of CPU registers, an Arithmetic and Logic Unit (ALU) and a control Unit. The CPU registers are blocks of storage each 32 bits wide which the CPU has the ability to operate on. Only data which is inside a CPU register can be operated on by the CPU. The ARM Cortex-M0 has 16 such registers. 
+A programmer's model is a representation of the inner workings of the CPU with sufficient detail to allows us to develop code for the CPU, but no unnecessary detail. The expanded view of the CPU which will now be discussed can be seen in \autoref{fig:prog_mod_v1}. This simple model of a CPU is a set of CPU registers, an Arithmetic and Logic Unit (ALU) and a control Unit. The CPU registers are blocks of storage each 32 bits wide which the CPU has the ability to operate on. Only data which is inside a CPU register can be operated on by the CPU. The ARM Cortex-M0 has 16 such registers. 
 
-The ALU is that performs the operations on the registers. It can take data from registers as inputs, do very basic processing and store the result in CPU registers. 
+The ALU is that which performs the operations on the registers. It can take data from registers as inputs, do very basic processing and store the result in CPU registers. 
 
 The control unit manages execution by telling the ALU what to do. Together, the registers, ALU and control are able to execute instructions. 
 Examples of instructions which the CPU is able to execute:
@@ -97,20 +111,31 @@ Examples of instructions which the CPU is able to execute:
   \item moving the number 42 into R5
 \end{enumerate}
 
-ARM defines datatypes for a 32 bit CPU as follows:
-\begin{itemize}
-  \item byte: 8 bits
-  \item halfword: 16 bits
-  \item word: 32 bits
-  \item doubleword: 64 bits
-\end{itemize}
 
 \section{CPU Architecture}
 This section will explore some CPU architectures and compare them to the architecture of the Cortex-M0.
 
-The Cortex-M0 makes use of a Von Neumann architecture. This means that there is a single bus which connects all perihperals inside the microcontroller. The implication of this is that the CPU cannot fetch an instruction from flash at the same time as it moves data in or out of RAM. This limitation allows for a much simpler architecture.
+The Cortex-M0 makes use of a Von Neumann architecture. This means that there is a single bus which connects all peripherals inside the microcontroller. The implication of this is that the CPU cannot fetch an instruction from flash at the same time as it moves data in or out of RAM. This limitation allows for a much simpler architecture.
 
-Other microcontrollers (even others in the Cortex-M series like the Cortex-M3) follow a Harvard architecture, meaning that there are seperate busses used for fetching instructions and moving data around. This allows faster execution as instructions can be fetched at the same time as data is loaded or stored. However, it necessitates greater complexity and more transistors. 
+Other microcontrollers (even others in the Cortex-M series like the Cortex-M3) follow a Harvard architecture, meaning that there are separate buses used for fetching instructions and moving data around. This allows faster execution as instructions can be fetched at the same time as data is loaded or stored. However, it necessitates greater complexity and more transistors. 
+
+\subsection{Three stage pipeline}
+Before discussing how loads or stores are done, the processor pipeline should be understood as it affects how the load instruction works. 
+The ARM Cortex-M0 implements a three stage pipeline. This means that an instruction is broken up into three parts, and executed over the course of three clock cycles. The parts are:
+\begin{itemize}
+\item \textbf{fetch:} the instruction which the program counter points to is pulled into the CPU.
+\item \textbf{decode:} the CPU control unit "looks" at the 16 bits which represent the instruction, and figures out what action it must take.
+\item \textbf{execute:} the CPU runs the instruction, causing data to be modified.
+\end{itemize}
+The fact that the CPU is pipelined means that different instructions can be going through different phases \emph{at the same time}. In other words, one instruction can be being fetched while another is being decoded while another is being executed. 
+As an example, assume we have three instructions which we want to execute, instruction A, instruction B and instruction C. The three instructions being run through the pipeline is shown graphically in \autoref{fig:pipeline}. It's critical to note how the program counter is always pointing to the instruction being \emph{fetched}. This makes sense as the job of the program counter after all is to facilitate keeping track of which instruction must be fetched. For this reason, when an instruction is being executed, the PC is actually pointing to two instructions (four bytes) further ahead in memory, and \emph{not} at the address of the instruction in execution. Hence, when an instruction in execution uses the PC, the value which will be used is the address of the instruction plus four.
+\begin{figure}
+\includegraphics[page=1, clip=true, trim=1mm 40mm 1mm 57mm, width=\textwidth]{./week2/pipeline}
+\includegraphics[page=2, clip=true, trim=1mm 40mm 1mm 57mm, width=\textwidth]{./week2/pipeline}
+\includegraphics[page=3, clip=true, trim=1mm 40mm 1mm 57mm, width=\textwidth]{./week2/pipeline}
+\caption{Showing three instructions being run through a three stage pipeline, as well as where the PC is pointing every cycle}
+\label{fig:pipeline}
+\end{figure}
 
 \chapter{Memory Model}
 \begin{figure}
@@ -123,9 +148,47 @@ The address of each post box is 32 bits long, meaning that addresses range from 
 Only very small sections of this address space are implemented and can actually be read from or written to.
 The sections which we are interested in are flash, RAM and peripherals (more on these later). Flash and RAM are contiguous blocks of memory, with a start address and an end address. \\
 
-Once our assembly code has been written and compiled to machine code, the computer which loads the code onto the micro has to be told what addresses to place the code at. The code should be placed starting at the beginning of flash. 
+\section{Data Types and Endianness}
+ARM defines datatypes for a 32 bit CPU as follows:
+\begin{itemize}
+  \item byte: 8 bits
+  \item halfword: 16 bits
+  \item word: 32 bits
+  \item doubleword: 64 bits
+\end{itemize}
+Each memory address corresponds to one byte of memory, so how can a word (four bytes) be stored in memory? Obviously, the four bytes have to come after each other to form a four byte block, or word.
+However, it is not obvious which order they should come in. For example, consider the case of wanting to store the word 0xAABBCCDD in address 0. The two possible ways of doing it are shown in \autoref{tab:endianness}.
+
+\begin{table}
+\centering
+\begin{tabu}{cc}
+    \multicolumn{2}{c}{\textbf{Little Endian}}\\
+    \hline
+    Address & Data \\
+      \hline
+      3 & 0xAA \\
+      2 & 0xBB \\
+      1 & 0xCC \\
+      0 & 0xDD \\
+\end{tabu}
+\qquad
+\begin{tabu}{cc}
+    \multicolumn{2}{c}{\textbf{Big Endian}}\\
+    \hline
+    Address & Data \\
+      \hline
+      3 & 0xDD \\
+      2 & 0xCC \\
+      1 & 0xBB \\
+      0 & 0xAA \\
+\end{tabu}
+\caption{Layouts of a word in memory according to little or big endian format}
+\label{tab:endianness}
+\end{table}
 
 \subsection{Writing and compiling code}
+Once our assembly code has been written and compiled to machine code, the computer which loads the code onto the micro has to be told what addresses to place the code at. The code should be placed starting at the beginning of flash.
+
 In order to get the CPU to do some of what we've discussed above, it needs to have code loaded onto it to run. We write code in a language called assembly. Assembly is a human-readable language. A program is made up of a sequence of instruction; each instruction gets executed by the CPU. It's quite easy to see what each instruction does by reading the program.  The complete instruction set is located in the Programming Manual. You must be familiar with this document! Examples of instruction which carry out the tasks listed above are:
 \begin{enumerate}
   \item \texttt{ADDS R6, R0, R1}
@@ -176,10 +239,10 @@ It's been said that the ARM Cortex-M0 is a 32-bit processor. For comparison, the
 
 
 
-\subsection{A Short History of ARM}
-Acorn
+%\subsection{A Short History of ARM}
+%Acorn
 
-\chapter{Perihperals}
-Ports are typically controlled by a block of memory called perihperals. Unlike RAM which is general purpose, each register in the perihperals memory block has a specific, well defined purpose. Typically the purpose of these perihperal registes are for configuring the microcontroller to behave in a certain way or communicate with the outside world.
-These CPU registers are different to the peripheral registers mentioned earlier for the reasons that they are located inside the CPU rather than in the address space and also they are mostly general purpose: they can hold any data required in the execution of a program. 
+%\chapter{Perihperals}
+%Ports are typically controlled by a block of memory called perihperals. Unlike RAM which is general purpose, each register in the perihperals memory block has a specific, well defined purpose. Typically the purpose of these perihperal registes are for configuring the microcontroller to behave in a certain way or communicate with the outside world.
+%These CPU registers are different to the peripheral registers mentioned earlier for the reasons that they are located inside the CPU rather than in the address space and also they are mostly general purpose: they can hold any data required in the execution of a program. 
 

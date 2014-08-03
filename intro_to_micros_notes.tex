@@ -1,5 +1,7 @@
 \documentclass[a4paper]{scrreprt}
 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{svg}
 \usepackage{listings}
@@ -8,6 +10,25 @@
 \usepackage[colorlinks=true]{hyperref}
 \usepackage{tabu}
 \usepackage{float}
+\usepackage{afterpage}
+\usepackage{pdflscape}
+\usepackage{pdfpages}
+
+\lstdefinelanguage[ARM]{Assembly}     % add a "x64" dialect of Assemblers
+   [x86masm]{Assembler} % based on the "x86masm" dialect
+   % with these extra keywords:
+   {
+   morekeywords={MOV, LDR},
+    morekeywords=[2]{.align,.cpu,.thumb,.syntax,.word},%
+    alsoletter={.,0,1,2,3,4,5,6,7,8,9},%
+    alsodigit={?},%
+    sensitive=false,%
+    morestring=[b]",%
+    morecomment=[s]{/*}{*/},%
+    morecomment=[l]@,%
+    morecomment=[l]//,%
+   }[keywords,comments,strings]
+\lstset{language=[ARM]Assembly}
 
 \title{\vspace*{60mm}Introduction to Microcontrollers Notes}
 \author{James Gowans}
@@ -23,7 +44,8 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 \newpage
 \tableofcontents
 \newpage
-\include{./week2/history}
+%\include{./week2/history}
 \include{./week1/week1}
+\include{./week2/load-store}
 
 \end{document}
