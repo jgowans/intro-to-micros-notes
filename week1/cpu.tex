@@ -1,0 +1,52 @@
+\chapter{The ARM Cortex-M0}
+
+At the core of a microcontroller is the CPU. Our CPU is called the Cortex-M0 and is designed by Advanced RISC Machines (ARM).
+The ARM Cortex-M0 CPU is certainly the most interesting block inside the STM32F051C6. This is where all processing happens, hence this is where the instructions which we write will run. It is therefore essential that we have an intricate understanding of the CPU so that we may write useful code for it. This chapter seeks to explore the CPU in some detail.
+
+\section{Programmer's Model of the CPU}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\textwidth]{./week1/programmers_model_v1.pdf}
+  \caption{A view of the internals of the STM32F051 with the ARM Cortex-M0 expanded}
+  \label{fig:prog_mod_v1}
+\end{figure}
+A programmer's model is a representation of the inner workings of the CPU with sufficient detail to allows us to develop code for the CPU, but no unnecessary detail. The expanded view of the CPU which will now be discussed can be seen in \autoref{fig:prog_mod_v1}. This simple model of a CPU is a set of CPU registers, an Arithmetic and Logic Unit (ALU) and a control Unit. The CPU registers are blocks of storage each 32 bits wide which the CPU has the ability to operate on. Only data which is inside a CPU register can be operated on by the CPU. The ARM Cortex-M0 has 16 such registers. 
+
+The ALU is that which performs the operations on the registers. It can take data from registers as inputs, do very basic processing and store the result in CPU registers. 
+
+The control unit manages execution by telling the ALU what to do. Together, the registers, ALU and control are able to execute instructions. 
+Examples of instructions which the CPU is able to execute:
+\begin{enumerate}
+  \item adding the contents of R0 and R1 and storing the result in R6
+  \item copying the contents of R3 into R0
+  \item doing a logical XOR of the contents of R3 with the contents of R4 and storing the result in R3
+  \item moving the number 42 into R5
+\end{enumerate}
+
+
+\section{CPU Architecture}
+This section will explore some CPU architectures and compare them to the architecture of the Cortex-M0.
+
+The Cortex-M0 makes use of a Von Neumann architecture. This means that there is a single bus which connects all of the parts (such as CPU, RAM, flash)  inside the microcontroller. The implication of this is that the CPU cannot fetch an instruction from flash at the same time as it moves data in or out of RAM. This limitation allows for a much simpler architecture, but at the expense of performance. 
+
+Other microcontrollers (even others in the Cortex-M series like the Cortex-M3) follow a Harvard architecture, meaning that there are separate buses used for fetching instructions and moving data around. This allows faster execution as instructions can be fetched at the same time as data is loaded or stored. However, it necessitates greater complexity and more transistors. \\
+
+It's been said that the ARM Cortex-M0 is a 32-bit processor. For comparison, the procesor which we used in this course previously (MC9S08GT16A) was an 8-bit processor. Your personal computer probably has a 64-bit CPU. 16-bit CPUs are also quite common. So what exactly does it mean when we say that the processor is 32-bits? Essentially, the number of bits which a processor is said to be referes to the size of the data bus. In other words: the amount of data which the processor is able to move around internally or perform arithmetic and logic operations on. Hence, with a 32-bit processor, we can move 32 bits of data from one spot in memory to another in just once instruction. If you had a 8-bit processor, it would cost 4 instructions to move 32 bits of data around.  
+
+\subsection{Three stage pipeline}
+Before discussing how loads or stores are done, the processor pipeline should be understood as it affects how the load instruction works. 
+The ARM Cortex-M0 implements a three stage pipeline. This means that an instruction is broken up into three parts, and executed over the course of three clock cycles. The parts are:
+\begin{itemize}
+\item \textbf{fetch:} the instruction which the program counter points to is pulled into the CPU.
+\item \textbf{decode:} the CPU control unit "looks" at the 16 bits which represent the instruction, and figures out what action it must take.
+\item \textbf{execute:} the CPU runs the instruction, causing data to be modified.
+\end{itemize}
+The fact that the CPU is pipelined means that different instructions can be going through different phases \emph{at the same time}. In other words, one instruction can be being fetched while another is being decoded while another is being executed. 
+As an example, assume we have three instructions which we want to execute, instruction A, instruction B and instruction C. The three instructions being run through the pipeline is shown graphically in \autoref{fig:pipeline}. It's critical to note how the program counter is always pointing to the instruction being \emph{fetched}. This makes sense as the job of the program counter after all is to facilitate keeping track of which instruction must be fetched. For this reason, when an instruction is being executed, the PC is actually pointing to two instructions (four bytes) further ahead in memory, and \emph{not} at the address of the instruction in execution. Hence, when an instruction in execution uses the PC, the value which will be used is the address of the instruction plus four.
+\begin{figure}
+\includegraphics[page=1, clip=true, trim=1mm 40mm 1mm 57mm, width=\textwidth]{./week2/pipeline}
+\includegraphics[page=2, clip=true, trim=1mm 40mm 1mm 57mm, width=\textwidth]{./week2/pipeline}
+\includegraphics[page=3, clip=true, trim=1mm 40mm 1mm 57mm, width=\textwidth]{./week2/pipeline}
+\caption{Showing three instructions being run through a three stage pipeline, as well as where the PC is pointing every cycle}
+\label{fig:pipeline}
+\end{figure}
