@@ -26,7 +26,7 @@ Very often we will need to work with clumps of data which are larger than 1 byte
 Each memory address only addresses one byte of memory, so how can something like a word (four bytes) be stored in memory? 
 Obviously, the four bytes have to come after each other to form a four byte block, or word.
 However, it is not obvious which order they should come in. For example, consider the case of wanting to store the word 0xAABBCCDD in address 0. The two possible ways of doing it are shown in \autoref{tab:endianness}. It doesn't really matter which one of these schemes is used - they each have their pros and cons and different processors use different methods. It is important to know which one our processor has chosen to use. Our processor uses little endian. A more abstract view of how data is stored in our processor is given in \autoref{fig:little_end_prog_man}
-
+\newpage
 \begin{table}
 \centering
 \begin{tabu}{cc}
@@ -50,7 +50,17 @@ However, it is not obvious which order they should come in. For example, conside
       1 & 0xBB \\
       0 & 0xAA \\
 \end{tabu}
-\caption{Layouts of a word in memory according to little or big endian format}
+\caption{Layouts of the word 0xAABBCCDD in memory at effective address 0, according to little or big endian format}
 \label{tab:endianness}
 \end{table}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth, page=21, clip=true, trim=160px 285px 160px 427px]{./stm32f0xx_programming_manual.pdf} % l b r t
+  \caption{More abstract view of little endian layout. Source: Prog Man, page 28}
+  \label{fig:little_end_prog_man}
+\end{figure}
+
+%\begin{overpic}[page=21, grid,unit=1px, tics=20, clip=true, trim=160px 285px 160px 427px]{./stm32f0xx_programming_manual.pdf}
+%\end{overpic}
 

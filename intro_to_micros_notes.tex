@@ -2,6 +2,7 @@
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\pdfoptionpdfminorversion 7
 \usepackage{graphicx}
 \usepackage{svg}
 \usepackage{listings}
@@ -13,6 +14,7 @@
 \usepackage{afterpage}
 \usepackage{pdflscape}
 \usepackage{pdfpages}
+\usepackage[abs]{overpic}
 
 \lstdefinelanguage[ARM]{Assembly}     % add a "x64" dialect of Assemblers
    [x86masm]{Assembler} % based on the "x86masm" dialect
@@ -46,8 +48,8 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 \newpage
 %\include{./week2/history}
 \include{./week1/system_overview}
-\include{./week1/cpu}
 \include{./week1/memory}
+\include{./week1/cpu}
 \include{./week1/coding}
 \include{./week2/load-store}
 

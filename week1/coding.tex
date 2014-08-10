@@ -36,13 +36,11 @@ This means that although our processor only supports one instruction set (Thumb)
 Once our assembly code has been written and compiled to machine code, the computer which loads the code onto the micro has to be told what addresses to place the code at. The code should be placed starting at the beginning of flash.
 
 \subsection{Executing Code}
-Once the code has been loaded onto the microcontroller, it will execute one instruction after the next. 
-CPU register R15 is reserved for keeping track of where the micro is in execution. It is known as the Program Counter (PC).
-The PC always points to the instruction which is ABOUT to be executed. Hence, when your micro boots up, before it has executed anything, the PC will point to the first instruction to be executed.
-By ``point to'' we mean that it holds the address of the instruction. 
+The PC always points to the instruction which is about to be fetched. Hence, when your micro boots up, before it has executed anything, the PC will point to the first instruction to be fetched/decoded/executed.
+By "point to" we mean that it holds the address of the instruction. 
 
 As each instruction in the ARM Cortex-M0 instruction set it 16 bits (aka: half a word) long, ARM have implemented a rule that all instructions must be half word alligned. In other words, the address of the instruction must be divisible by 2 bytes. Legal addresses for instructions are hence, 0x02, 0x04, 0x06, 0x08 ... etc. 
 This means that the least significant bit (bit 0) of the PC register is unused in specifcying the address of an instruction. 
-Hence, it has been assigned another use. Specifically, to indicate the type of instruction which is being executed. 
+Hence, it has been assigned another use. Specifically, to indicate the instruction set which is being executed. 
 
 
