@@ -1,0 +1,32 @@
+\chapter{Stack}
+A stack is a concept. The concept is a data structure which implements a Last In / First Out queue. It has two interfaces namely:
+\begin{description}
+    \item[PUSH:] Take a value and places it at the top of the stack, on top of whatever already exists in the stack.
+    \item[POP:] Removes the top element from the stack and puts it into a register. The next element down then becomes the top of the stack.
+\end{description}
+
+That's basically all there is to a stack: a LIFO queue. An animation of this queue in operations is shown at \url{http://www.csanimated.com/animation.php?t=Stack}
+
+The stack is such a useful thing for computer systems what we dedicate specific hardware in the CPU to implementing one of these LIFO queues. The stack has two main uses:
+\begin{enumerate}
+    \item Saving system state. When an exception occurs we want to back up the system state somewhere and then have the ability to recover the backed up state later if we return from the exception. The stack provides us an always-accessible place in memory where this information can be placed and recovered later.
+    \item General data storage. We have a limited number of registers yet frequently need to work with more data than our CPU can hold. While we could just pick addresses in RAM for use as data storage, we'd have to keep a list of what locations are used for what in our different blocks of code, hard code the addresses into the program and make sure that we don't overwrite our data in RAM. With a stack we can simply push data to the stack and pop it later when we want to get it back. The stack implementation keeps track of the actual memory addresses which data goes to. 
+\end{enumerate}
+
+\section{Stack Pointer}
+Clearly a well implemented stack is highly beneficial to a system. In order to implement the stack, one of our registers, R13 is assigned the special job of being the stack pointer (SP). The purpose of the stack pointer is to point to (hold the address of) the item most recently placed on the stack. In that way it keeps track of the stack. Typically a stack is implemented starting at the end of RAM (highest address) and working it's way down RAM. Hence, the SP should be initialised pointing to the end of RAM.
+
+Well, that's not quite true! As discussed in section 2.1.2 of the Programming Manual, the order of operations for a stack push is to first decrement the pointer and then place the data at the new address pointed to by the SP. That means that if we want to place our first word pushed onto the stack, the SP must be initialised to point to one word AFTER the end of RAM.
+
+The reason we want to start the stack right at the end of RAM is to allow it as much space as possible to grow. Typically computer systems have another data structure called a heap with starts at the beginning of RAM and grows upwards. These data structures should be as far away from each other as possible to prevent stack overflow, when the stack and the heap collide. Stack/Heap collision is about the worst think that can happen to a program. This is why lots of RAM is good: the more RAM we have the more data we can store before collision happens. 
+
+\section{Stack Access Instructions}
+The two instructions which give direct access to the top of the stack are the PUSH and POP instructions. Both of these instructions take something called a register list as an argument. This is sort of an array of registers, enclosed in curly brackets such as \{R0, R2, R5\}. This is very powerful as it allows us to push or pop multiple registers at one!
+
+Seeing as the SP is a CPU register like any other, you can also use it for load/store operations enabling the random access of any element on the stack. For example, to load the \nth{5} last element on the stack by 42 without touching any of the other elements you could do:
+\begin{lstlisting}[fontadjust=true,frame=trBL]
+LDR R0, [SP, #16]
+ADDS R0, R0, #42
+STR R0, [SP, #16]
+\end{lstlisting}
+Without this ability you'd have to pop off all 5 values into registers, add 42 to the specific register and then push the results back.

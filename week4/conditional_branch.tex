@@ -12,6 +12,27 @@ The APSR is a special CPU register. It does not have a register number like the 
 
 Together, these flags provide us with an abundance of information about the result of computations. We are able to ascertain basically any information about the relationship between arbitrary numbers by examining these flags. Not all instructions set the APSR flags. It is necessary to examine the details of the instruction in the Programming Manual in order to see whether the instruction sets the flags. Furthermore it may be necessary to examine the detailed workings of the instruction in the ARMv6-M Reference Manual in order to see which flags are set and how the settings of those flags is determined. However, in general instructions which set the flags have an \texttt{S} at the end of their name. Again (in general) arithmetic operations set/clear all APSR flags while logic operations set/clear only the \texttt{N} or \texttt{Z} flags. 
 
+\section{Overflow Flags}
+While the Z and N flags are simple to understand, the overflow flags (especially signed but also unsigned) are more tricky. Let's explore them in a bit of detail. 
+
+Our CPU registers contain a limited number of bits: 32. This places a limit on the range of numbers which can be held in the CPU. Note that the register only holds a sequence of bits. That sequence of bits is only interpreted as a number when we assign some sort of encoding scheme to the number. 
+
+\subsection{Unsigned Numbers and the C Flag}
+The typical scheme used to convert a binary string into an integer is that the weight of each bit is equal to $2^{n}$ where $n$ is the position of the bit starting at 0. Each bit is multiplied by its weight and summed. This is one interpretation (arguably the most common) which converts a sequence of bits into an actual number which can be represented on a number line and have a meaning. This interpretation is called \emph{unsigned}.
+
+For 32 bits the maximum value obtainable is when all of the bits are set. This is equal to the value $2^{32} - 1 = $ 4 294 967 295. The minimum value is when all bits are 0, resulting in a value of 0. It's important to realise that these limits are only true when we are treating the sequence of bits as an unsigned number. 
+
+What happens if we attempt to exceed these limits? An overflow occurs. If we attempt to perform a computation where the true result of the computation is outside of the limits imposed by the finite number of bits in the CPU an overflow occurs. This overflow of the unsigned limits is signaled by the CPU through setting the C flag high.
+
+\subsection{Signed Numbers and the V Flag}
+We've just seen that when interpreting a sequence of bits as unsigned the minimum value is 0. This is often not sufficient as we may want the capability to represent negative numbers. Enter signed numbers. Here, the weights of the msb is $-(2^{n})$ while all the other bit keep their positive weights. 
+
+This means we have different limits. The largest value which can be represented by a 32-bit signed number is when all of the positive bits are set and the negative bit is clear: 0x7FFF FFFF or 2 147 483 647. The smallest value which can be represented by a 32-bit signed number is when all of the positive bits are clear and the negative bit is set: 0x8000 0000 or -2 147 483 648.
+
+Again, what happens if we attempt to execute a computation where the actual result is outside of the limits of what the 32 bits can hold when interpreted as signed numbers? The CPU signals this error to us with the Two's compliment overflow flag: V. 
+
+The CPU itself has absolutely no idea whether you as the programmer want to treat your data as signed or unsigned numbers. It just takes sequences of bits and performs arithmetic or logic operations on the bits. Hence, to cater for both possible cases (the bits should be treated as signed or the bits should be treated as unsigned) the CPU sets or clears both the C and V flag after computations. If you want your numbers to be treated as unsigned you should be interested in the state of the C flag. If you want your numbers to be treated as signed you should be interested in the V flag. 
+
 \section{Compare Instruction}
 One of the key instructions used in the context of conditional branching is the compare (\texttt{CMP}) instruction. This instruction essentially subtracts two values from each other, disregards the result but updates the flags depending on the result. \texttt{CMP} takes either two registers or a register and an immediate value as operands. The CMP instruction is most often used to set the conditions which the conditional branch will depend on. This is due to the fact that a subtraction tells us a lot about the relationship between two numbers. For example, if the result of a subtraction sets the zero flag we know that the numbers being compared (subtracted) have the same value. Similarly, if the result of the subtraction of B from A clears the V flag it tell us that A is larger than B when viewed as signed numbers. 
 
