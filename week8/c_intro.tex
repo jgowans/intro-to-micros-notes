@@ -1,0 +1,43 @@
+\chapter{Introduction to C}
+\section{Advantages}
+C is a programming language which was conceived in the early 1970's. 
+C is a more abstract language than assembly.
+That is to say, it hides a lot of the complexity associated with assembly, and allows the programmer two write code which is more focused on the task which must be carried out rather than the details of how it is carried out.
+
+This abstracted nature of C provides us with the main advantage of C over assembly: portability. 
+C is abstracted away from machine code, so we don't have to worry about instruction sets when writing our code. 
+The C compiler figures out the correct assembly instructions to carry out the operation you want to do and generating the assembly code to do it.
+
+There are so many different instruction sets out there. 
+Every manufacturer of microprocessors has their own instruction set. 
+Furthermore, different processors from the same manufacturer will likely support different instructions from the instruction set.
+Consider for example the Cortex series of microprocessors. 
+There are 6 different processors in the Cortex series, each of which support a different set of instructions. 
+That's just one series from one manufacturer. There are tens of manufacturers each with tens of series. 
+If you want to switch from one processor to another you have to basically learn a new instruction set and how the architecture for that processor works. 
+
+With C, you just need to find a compiler for your processor (generally this is made available for free by the manufacturer), then you give it your C code and it converts your C code to the assembly code with the correct instructions for your processor. The C compiler knows which instructions are legal and knows how to use those instructions to get the processor to perform operations.
+
+You can take that exact same C code and compile it with a different compiler for a different processor and the compiler will generate the correct assembly code for that processor. 
+This is portability and it is extremely important. 
+It allows use to save engineering time as you only have to maintain one code base which you can re-use many times for many different applications instead of having to re-write your assembly code every time you moved to a different platform.\\
+
+Another advantage which the C language provides to software developers is improved readability. 
+By having things like named variables, function calls, loops, compound conditional statements and standard mathematical operator symbols, it allows for code to be easily read and understood. 
+Remember that while code is only written once, it is read many times. Readability is arguably the most important aspect of good code.
+
+Finally, although C is more abstract than assembly, it is not too abstract. With a language like Java or Python, there are additional layers which are introduced such as an interpreter or a virtual machine. This sort of abstraction provides superior portability but at the expense of a significant performance hit. C has minimal overheads which means it suffers much less from this performance hit.
+A good compiler will produce very efficient assembly code.
+This is  crucial as embedded systems engineers are often working in resource constrained environments.
+
+The balance between portability and performance is one of the main reasons why C is still \emph{the} most popular\footnote{As per \url{http://langpop.com/}} language today, over 40 years after it was thought up. 
+
+\section{Safety}
+C and assembly are both unsafe programming languages. That is, they access to arbitrary memory addresses. This can cause catastrophic system failures if you (for example) accidentally overwrite some critical data such as the return address of a stack frame.
+The C compiler does attempt to provide warnings in the event that it detect that you are doing strange things, such dereferencing an uninitialised pointer or passing variables of the incorrect type to a function. However, the compiler is not able to warn for a subset of potentially dangerous actions and these warnings are often just ignored by sloppy programmers. 
+
+You may argue what it would be better to work with a safe programming language which does not allow us to create pointers to arbitrary memory addresses. However, for working with microcontroller it is essential that we do have the ability to modify specific memory addresses as that is how we interface with the peripherals. 
+
+In essence, we require the language to allow us full control over our system but this means we must program carefully or we risk creating faults which could be very difficult to track down.
+
+

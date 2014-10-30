@@ -1,4 +1,5 @@
 \chapter{Exceptions}
+\label{sec:exceptions}
 An exception is a fairly generic term for an event which occurs which the CPU needs to deal with in some way. Examples of exceptions would be the microcontroller resetting or the CPU attempting to access invalid memory or a peripheral generating an interrupt. Typically we write a block of instruction which we want to execute when an exception occurs. That block of code is called an \emph{exception handler}. We then place the address of the start of that exception handler into a special location in memory called a vector. Each exception has a vector address associated with it. The block of all vectors is called the vector table. A summarised version of it is shown in \autoref{fig:vector_table_summarised}.
 
 \begin{figure}
