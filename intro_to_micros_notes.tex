@@ -18,6 +18,8 @@
 \usepackage{nth}
 \usepackage{siunitx}
 
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
 \lstdefinelanguage[ARM]{Assembly}     % add a "x64" dialect of Assemblers
    [x86masm]{Assembler} % based on the "x86masm" dialect
    % with these extra keywords:
@@ -67,5 +69,6 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 \include{./week7/timer}
 \include{./week7/nvic}
 \include{./week8/c_intro}
+\include{./week8/c_vars}
 
 \end{document}
