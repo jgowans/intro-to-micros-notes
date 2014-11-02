@@ -1,0 +1,36 @@
+\chapter{Conditional Execution}
+\section{if}
+We often want a block of code to only execute if some conditions are true. In assembly we implemented this with conditional branches. In C we implement it with \texttt{if} statements.
+An \texttt{if} statement is based on conditional branches. In fact, that's what it compiles down to. The format of an if is as follows. Note how the block is defined by curly brackets. 
+
+\begin{lstlisting}[language=C]
+if(condition) {
+    // block of code
+}
+\end{lstlisting}
+
+The condition is generally a comparison between two variables or between a variable and a fixed number. The comparison operations are similar to those used in mathematics: \texttt{< <= > >= != ==}. 
+The only potentially unusual ones are equality checking: \texttt{==} and \texttt{!=}. 
+It's important to note the difference between an assignment operator (\texttt{=}) and an equality checking operator (\texttt{==}). 
+The assignment operator is perfectly legal\footnote{The way it works is that an assignment takes place, and whatever value is assigned evaluated against 0 to see if the \texttt{if} block should run. Any non-zero value will cause the if statement to run.} in an \texttt{if} statement but is almost always not what you want to do. 
+It's a common mistake to assign when you want to compare. 
+This can lead to lots of confusion when code behaves strangely. 
+
+When comparing variable, it makes a difference whether they are signed or unsigned numbers. In order to get reliable, consistent behavior it is advised to only compare signed with signed or unsigned with unsigned. Should you wish to compare signed with unsigned it is advised to explicitly typecast one of the values. 
+
+\section{else}
+Often we want only one out of two different blocks to execute depending on a single condition. 
+For this we have the \texttt{else} statement. 
+An \texttt{else} comes after an \texttt{if} statement. 
+The condition is evaluated once. 
+If the condition is found to be true, the block associated with the \texttt{if} is executed. 
+If the condition is not true, the block associated with the \texttt{else} is executed. An example is shown below.
+
+\begin{lstlisting}[language=C]
+// the following sets foo to the larger of var1 and var2
+if(var1 > var2) {
+    foo = var1;
+} else {
+    foo = var2;
+}
+\end{lstlisting}

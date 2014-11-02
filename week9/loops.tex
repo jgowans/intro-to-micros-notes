@@ -1,0 +1,77 @@
+\chapter{Loops}
+The conditional statement we have been using so far (\texttt{if}) allows a block of code to execute either 1 or 0 times depending on some condition.
+There is often a case where we want a block to execute anywhere between 0 times and infinitely. For this we used loops. 
+The two sorts of loops we will discuss are the \texttt{while} and \texttt{for} loops.
+
+\section{while}
+The \texttt{while} loop is the simplest sort of loop. 
+The condition is evaluated. If it is found to be true, the block is executed. If it is found to be false, the block is skipped over.
+Assuming the condition was true and the block was executed, after execution the condition is evaluated again. 
+If it is still true, the block is executed again. If it is now false, the block is not executed again. This process repeats \emph{ad infinitum}. 
+
+In essence, the block is executed \emph{while} the condition is true.
+
+The example below shows a block which will be executed 10 times. Note that if the decrement line was not in the block, the loop would execute infinitely as the condition would always be true.
+
+\begin{lstlisting}[language=c]
+uint8_t counter = 10;
+while (counter > 0) {
+    foobar();  // do some stuff like a function call
+    counter -= 1; 
+}
+\end{lstlisting}
+
+Just like the conditions in the \texttt{if} statement, the condition in the \texttt{while} statement can be complex, compound statements. 
+Consider the following which does a function call, a mask and a comparison.
+
+\begin{lstlisting}[language=c]
+while ( (readGPIOA() & (1 << 3)) != 0) {
+    foobar();  // do some stuff like a function call
+}
+\end{lstlisting}
+
+\section{for}
+The first example of the \texttt{while} loop shown above is so commonly used that another loop has been designed to make that case easier to write. 
+This is the {for} loop.
+The case which it is useful for is when you have 
+\begin{itemize}
+    \item some sort of counter variable which is initialised to a starting value,
+    \item a condition which is often based on the counter value, and
+    \item some increment or decrement action which should be done to the counter value after each loop iteration.
+\end{itemize}
+
+The following two blocks try to demonstrate how a while loop can be compressed into a for loop.
+
+\begin{lstlisting}[language=c]
+// the structure of a while loop
+initialisation;
+while ( condition ) {
+    // do some stuff
+    increment;
+}
+
+// the structure of an equivalent for loop
+for ( initialisation ; condition ; increment ) {
+    // do some stuff
+}
+\end{lstlisting}
+
+Note that these three parameters of the \texttt{for} loop are not limited to only do a specific action. By that I mean the condition does not have to be based on any specific variable, or even be present. Also, the increment stage does not have to be an increment. It can be a decrement or a bit shift or a function call or anything.
+We tend to write our \texttt{for} loops like the above because that is how they are most often used.
+The equivalent for loop for the above \texttt{while} loop which runs 10 times is as follows.
+
+\begin{lstlisting}[language=c]
+uint8_t counter;
+for ( counter = 0 ; counter < 10 ; counter += 1 ) {
+    foobar();  // do some stuff like a function call
+}
+\end{lstlisting}
+
+Note that as per C99 you can define variables in the initialisation part of the \texttt{for} loop but I prefer to be ANSI C compliant and define my variables before the loop. 
+
+It should now make some sort of sense how our infinite loop works; it has three empty parameters. Basically it says: don't do any initialisations, don't be based on any conditions (run forever) and don't do anything specific after every iteration. 
+
+\begin{lstlisting}[language=c]
+for ( ; ; ) {
+}
+\end{lstlisting}

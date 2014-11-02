@@ -1,0 +1,118 @@
+\chapter{C Operators}
+Operators are the symbols we use to tell the compiler that we want to apply some operation on one or more numbers or variables.
+The operations are generally arithmetic, logic, bitwise or comparison operations, but there are a few others as well.\\
+
+\section{Arithmetic Operations}
+In terms of arithmetic operations, the normal $+$, $-$, $*$ and $/$ apply. These operators are called binary operators because they are applied to two operands. In other words, there must be some number supplied on both sides of the $+$ symbol.
+
+There are also two unary (only require 1 operand) arithmetic operators, the $++$ and $--$. These operators add 1 to or subtract 1 from the operand. If these operators are applied before a operand, it is called a pre-increment or pre-decrement. If they are applied after the operand it is called a post-increment or post-decrement. The difference is important to understand. 
+
+\subsection{Post- vs Pre- increment/decrement}
+Firstly, note that if the increment or decrement operators are the only thing being done in a statement then it makes no difference whether a post or pre operator is used. 
+The difference only appears when there is a compound statement which requires the operand to be evaluated. The simplest case is that of an assignment. Clearly in order to assign the value of one variable (\texttt{foo}) to another (\texttt{bar}) the value of \texttt{foo} must be evaluated. 
+Pre-increment means that the value is incremented and then the it is evaluated (ie: it is evaluated to the new value). 
+Post-increment means that the value is evaluated and then incremented. 
+This is demonstrated below.
+
+
+\begin{lstlisting}[language=C]
+// the following demonstrates pre-increment
+// here, both foo and bar take on 0xAB
+uint8_t foo = 0xAA;
+uint8_t bar = ++foo;  // inc to 0xAB and then evaluate.
+
+// the following demonstrates post-decrement.
+// here, foo takes on 0x54 while bar takes on 0x55
+uint8_t foo = 0x55;
+uint8_t bar = foo--; // evaluate to 0x55 and then dec. 
+\end{lstlisting}
+
+\section{Logic Operations}
+There are two classes of logic operands: bitwise logic and boolean logic. 
+\subsection{Bitwise Logic}
+Bitwise logic applies the logic operation to each individual bit of the operands. 
+\begin{table}[h!]
+\centering
+\begin{tabu}{c c}
+Operator & Meaning \\
+\hline
+\& & bitwise AND. Binary. \\
+| & bitwise OR. Binary. \\
+\textasciicircum & bitwise XOR. Binary\\
+\textasciitilde & bitwise inverse (NOT). Unary\\
+\end{tabu}
+\end{table}
+
+\subsection{Boolean Logic}
+Boolean logic operators evaluate the operands as a boolean True or False and apply the operations on the operands as a whole.
+These are most useful when you have multiple conditions which you want to turn into a compound condition. 
+\begin{table}[h!]
+\centering
+\begin{tabu}{c c}
+Operator & Meaning \\
+\hline
+\&\& & logical AND. Binary. \\
+|| & logical OR. Binary. \\
+! & logical inverse (NOT). Unary\\
+\end{tabu}
+\end{table}
+
+\section{Bit shift Operations}
+Bit shift refers to moving all of the bits which represent a binary number up or down. 
+The bits which fall off the end are simply thrown away. 
+The empty spots are replaced with 0's. 
+In order to shift bits up in C, the \verb|<<| operator is used. To shift bits down it is \verb|>>|. 
+A bit shift up corresponds to a multiplication by a power of 2. For example, shifting bits up by 5 places is the same as multiplication by $2^5$.
+This should be obvious if you write the numbers out in binary.
+A bit shift down corresponds to a division by a power of 2, rounding the result DOWN. The result must be rounded down as extra bits (which can be thought of as the decimal component) are thrown away.
+An example follows.
+
+\begin{lstlisting}[language=C]
+// set foo to equal bar times 128 (2^7)
+foo = bar << 7;
+
+// set foo to bar divided by 2 and rounded down.
+foo = bar >> 1;
+\end{lstlisting}
+
+The reason why we may want to use bit shifts rather than multiplication or division operations is for efficiency. It is generally faster to perform a bit shift rather than a multiply or divide. 
+
+The most frequent application of bit shifting for us is setting or clearing specific bits in registers. Consider the case where we want to set bit 27 of a register. The following shows a few ways of doing it.
+
+\begin{lstlisting}[language=C]
+someReg |= 134217728;
+someReg |= 0b00001000000000000000000000000000;
+someReg |= 0x80000000;
+someReg |= (1 << 27);
+\end{lstlisting}
+
+The method with the bit shift is clearest in showing which bit is being set. 
+
+\section{Typecast}
+A typecast explicitly converts data of one type to another type. 
+C is a weakly typed language, meaning that if you attempt to assign data of one type to a variable of another type it will do an implicit type conversion and perform the assignment.
+This mean that typecasts are rarely (ever?) strictly necessary in the case of cross-type assignments.
+Most often we do them for our own sake (improve code readability) or to prevent compile warnings.
+If the compiler notices that you're assigning one data type to a different data type it may generate a warning to let you know that the result may not be what you expect.
+This warning is resolved by an explicit typecast. 
+The other key use of typecasting for us is to convert between different pointer types.
+We know that the type of a pointer dictates how much memory will be accessed when the pointer is dereferenced, and also what amount will be added or subtracted from the pointer if it is incremented/decremented. 
+Should we wish to change how a pointer behaves we can do so with a typecast. 
+The following shows a few examples of where we may want typecasts.
+
+\begin{lstlisting}[language=C]
+// This would generate a warning as we're assigning a number to a pointer
+uint16_t *foo_ptr = 0x2000 0040;
+// No warning here was we explicitly cast the number to a pointer
+// of the correct type.
+uint16_t *foo_ptr = (uint16_t *)0x2000 0040;
+
+// Again, warning as foo_prt and bar_ptr are different types
+uint32_t *bar_ptr = foo_ptr;
+// Warning resolved by telling compier we know what we're doing.
+int32_t *bar_ptr = (int32_t *)foo_ptr;
+
+// We only want to access the LSB of the data pointed to by foo_ptr.
+// This is done by casing and then dereferencing.
+*((uint8_t *)foo_ptr) = 0xAA;
+\end{lstlisting}

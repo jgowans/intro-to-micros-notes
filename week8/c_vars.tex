@@ -112,7 +112,7 @@ Where do automatic variables get allocated in memory? Well, they need to be some
 
 \begin{figure}
     \centering
-    \includegraphics[scale=1]{./week8/mem_allocation.pdf}
+    \includegraphics[scale=0.7]{./week8/mem_allocation.pdf}
     \caption{Layout of different variable blocks in memory. Note how data is fixed at compile time while stack and heap grow dynamically}
     \label{fig:mem_allocation}
 \end{figure}
@@ -149,8 +149,110 @@ uint32_t bar[15];
 \end{lstlisting}
 
 The variable name (in the above example \texttt{foo} or \texttt{bar}) of an array type behaves in much the same way as if it were the address of element 0 of the array. 
-This means firstly that you cannot write to the variable name, as it makes no sense to modify the address of element 0 after it has already been defined. 
+It is said that the variable name of an array type \emph{decays} to a pointer type.
+This means that you cannot write to the variable name, as it makes no sense to modify the address of element 0 after it has already been defined. 
 Should you wish to access the element, you should first \emph{dereference} the variable which will give you access to the data. 
 Should you wish to access element 1, you should add 1 to the address of element 0 and then deference that. 
 This will always work independent of the size of the elements of the array due to arithmetic operations applied to pointer types working in multiplies of the size of the data being pointed to by the pointer, as discussed earlier.
 
+There is a nice shorthand for accessing elements of arrays; the square bracket operator. This operator just dereferences the pointer plus some number. The following two are equivalent. 
+\begin{lstlisting}[language=C]
+*(myArray + 10);
+myArray[10];
+\end{lstlisting}
+
+Note that although the square bracket operator is most useful on array types, it is valid on any pointer types. 
+
+\section{Structs}
+An array is limited in that each element of the array must be of the same type. A struct seeks to overcome this by allowing you to create a custom data structure which has elements (now called `members') of different data types. Additionally, rather than accessing the members via an index as you would do for an array, you access the members via their names. 
+Our main use for structs will be in interfacing with peripherals.
+A peripheral can be modeled as a struct where each register has a name and is of a potentially different size to the other registers in the peripheral.
+
+There are two defining a variable of struct type.
+The first step is to declare the struct. The second step is to define a variable of that type.
+The struct declaration specified what the struct looks like in terms of struct name, member sizes and member names.
+
+\begin{lstlisting}[language=C]
+struct myStruct {
+    uint32_t  member1;
+    uint8_t   *member2;
+    uint8_t   member3[8];
+    int32_t   member4; 
+};
+\end{lstlisting}
+
+Once that code is in place, you can then define variables of type \texttt{struct myStruct}. This may seem hairy, but it is a variable just like any other and defined in the same way.
+
+\begin{lstlisting}[language=C]
+struct myStruct foo;
+\end{lstlisting}
+
+The variable \texttt{foo} is now of a variable of type \texttt{struct myStruct}. What can you do with this variable? Well, just like how you can access the elements of an array, you can access the members of a struct. This is done via the member access operator, the full stop / dot. 
+
+\begin{lstlisting}[language=C]
+foo.member1 = 0xAABBCCDD;
+foo.member2 = &someVar;
+foo.member3[6] = 0xAA;    // member 3 is an array
+foo.member3[7] = 0xBB;
+foo.member4 = -42;
+\end{lstlisting}
+
+\subsection{Memory Layout}
+How does this struct appear in memory? This is key to understand as we want our struct to map exactly to the memory layout of the registers of a peripheral. 
+Firstly, note that when we declared the variable \texttt{foo}, we had no control where the memory for this struct was allocated. This is troublesome, but let's ignore that for now.
+
+The struct requires a certain amount of space to be allocated to it. How much space? The sum of the space for each member. 
+\begin{align*}
+size &= \texttt{ member1 } + \texttt{ member2 } + \texttt{ member3 } + \texttt{ member4 }\\
+ &= 4 + 4 + (8*1) + 4\\
+ &= 20 \text{ bytes}
+\end{align*}
+
+That is to say, whenever a variable of type \texttt{struct myStruct} is defined, 20 bytes must be allocated for it. 
+
+Typically, the members are laid out in the order which they are specified in. Things start to become more complicated when you have alignment issues or memory optimisation requirement, but we will ignore those for our alanysis of structs. 
+
+Wherever the variable \texttt{foo} happens to get allocated in memory, \texttt{member1} will have an offset of 0 and occupy 4 bytes while \texttt{member2} will have an offset of 4 and occupy 4 bytes while \texttt{member3} will have an offset of 8 and occupy 8 bytes while \texttt{member4} will have an offset of 16 and occupy 4 bytes. 
+
+\subsection{Pointers To Structs}
+As mentioned, the most useful application of structs for us is interfacing with out peripherals. For that we need to have precise control over where the struct is placed in memory. Unfortunately, this is not possible as the compiler always decides where memory is allocated. 
+However, do have a tool which allows us to `fake' structs anywhere in memory. This is the exact same tool which we used when we first stated interfacing with registers.
+Recall that we interfaced with peripheral registers as follows.
+
+\begin{lstlisting}[language=C]
+// treat the number as a pointer to a uint32_t and dereference it.
+*(uint32_t *)0x48000040 = 0x5555;
+\end{lstlisting}
+
+That is saying "treat 0x4800 0040 as a pointer to a 32-bit number, access the data being pointed to and write 0x5555 to it." We can do the exact same thing for structs!
+\begin{lstlisting}[language=C]
+// treat the number as a pointer to a myStruct, dereference it,
+// and access a member.
+(*(struct myStruct *)0x48000040).member1 = 0x5555;  
+\end{lstlisting}
+
+That will write the number 0x5555 to the base address 0x4800 0040 plus the offset of \texttt{member1} which is an offset of 0.
+Similarly, we could do something like the following which would write to the 8-bit number located at base address 0x4800 0040 plus offset of $4 + 4 + (4*1) = 12 = \text{0x0C}$. 
+\begin{lstlisting}[language=C]
+(*(struct myStruct *)0x48000040).member3[4] = 0xAA;  
+\end{lstlisting}
+
+Notice what we are doing in the previous two examples: we are dereferencing a pointer to a struct and then accessing a member of that struct.
+This operation of dereferencing and then accessing a member is so often done that there is an operator for it, the \emph{indirect} member access operator: \texttt{->}.
+Using this operator, the above two examples can be re-written more elegantly as follows.
+\begin{lstlisting}[language=C]
+((struct myStruct *)0x48000040)->member1 = 0x5555;  
+((struct myStruct *)0x48000040)->member3[4] = 0xAA;  
+\end{lstlisting}
+
+Just like we can define variables of struct type, we can also define variables of pointer to struct type.
+The above example could also be implemented with a variable declaration as follows. 
+
+\begin{lstlisting}[language=C, frame=trBL]
+// do explicit typecast to prevent compiler warning
+struct myStruct *foo = (struct myStruct*)0x48000040;
+foo->member1 = 0x5555;
+foo->member3[4] = 0xAA;
+\end{lstlisting}
+
+This implementation using a variable is \emph{less} efficient as it requires a pointer variable to be allocated in memory and accessed. With the previous implementations which did not use a variable all of the addresses are resolved at compile time which makes the program faster and smaller. 
