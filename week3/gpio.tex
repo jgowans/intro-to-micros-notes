@@ -28,6 +28,19 @@ Here, the pin does not measure a logic level, but rather asserts a logic level. 
 
 Each bit in this register can be set by writing to the register. Additionally, the bits in this register can be set via the Bit Set and Reset Register (GPIOx\_BSSR). This register allows atomic (done in a single instruction) setting or clearing of individual bits in the ODR. 
 
+\subsection{A note on 'bricking' your micro}
+If you study your dev board circuit diagram carefully, you'll notice that PA13 and PA14 are connected to the debugger. These are the SWD data and SWD clock pins. By default, these pins are not configured as inputs. Rather, they are configured as Alternate Mode, which allows them to be connected to the SWD circuitry inside the STM32F051 and hence serve the purpose of transfering SWD traffic between the SWD peripheral and the ST-Link. If you look at secion 9.4.1 of the reference manual, you'll see that in general the reset state of pins is input. Port A is however an exception. Its reset state is 0x2800 0000. This corresponds to all pins as inputs except PA13 and PA14 which are alternate mode. In order for these pins to be connected to the SWD circuitry, they must remain in Alternate Mode. If you set the pins to inputs, they will no longer serve as an interface for the SWD peripheral to the ST-Link. For this reason, you should under no circumstance modify the values of the bits at GPIOA\_MODER[29..36]. 
+
+If you do accidentally set these pins to inputs, it becomes difficult to unset them. As soon as the micro boots up, your code will run and break connectivity with the debugger. The only way to fix this is to intercept the micro before it is able to boot up and erase your bad code from it.
+To do this, openocd will be launched with some extra flags to prevent the micro booting up. The openocd command should be executed while the micro is reset to ensure that the pins are back to their default reset state.
+\begin{itemize}
+  \item Hold down the reset button. This will force the micro to reset state and prevent your code from running.
+  \item Launch openocd with the extra command line arguments: -c init -c "reset halt"
+  \item About a quarter of a second after pressing 'enter' on that openocd command, release the reset button. OpenOCD should now manage to establish connection.
+  \item Connect GDB to OpenOCD. Run the GDB command: monitor flash erase\_sector 0 0 0
+  \item Your bad code should now be erased and you can load good code onto the micro.
+\end{itemize}
+
 \section{Pull resistors}
 When a pin is set to input mode and there is no logic level applied to it, what value will the bit for that pin in the IDR take on? A logic 1 or a logic 0? Due to the high impedance nature of the pin and the presence of environmental noise, the level which is read from the pin will probably jump randomly between a logic 1 and logic 0. The fact that it's a high impedance input means that even very weak EM signals will cause a voltage to appear on the pin which will cause it to oscillate between logic levels. This is generally bad. In order to define a sort of 'default' level which the pin will read when no external signal is applied to it, internal pull up or pull down resistors are used. These resistors are selectively turned on or off using the 
 
