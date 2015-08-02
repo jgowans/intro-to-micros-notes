@@ -37,8 +37,8 @@ To do this, openocd will be launched with some extra flags to prevent the micro 
   \item Hold down the reset button. This will force the micro to reset state and prevent your code from running.
   \item Launch openocd with the extra command line arguments: -c init -c "reset halt"
   \item About a quarter of a second after pressing 'enter' on that openocd command, release the reset button. OpenOCD should now manage to establish connection.
-  \item Connect GDB to OpenOCD. Run the GDB command: monitor flash erase\_sector 0 0 0
-  \item Your bad code should now be erased and you can load good code onto the micro.
+  \item Connect GDB to OpenOCD. Run the GDB command: monitor flash erase\_sector 0 0 last
+  \item Your bad code should now be erased. Power cycle the board, and OpenOCD should be able to connect to it with the normal command.
 \end{itemize}
 
 \section{Pull resistors}
