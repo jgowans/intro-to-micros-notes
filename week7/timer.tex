@@ -58,8 +58,9 @@ There is a slight additional complication: the value which the prescaler actuall
 Values are placed into the prescaler by writing to the TIMx\_PSC register.
 
 \section{Timer Interrupts}
-We know that the timer CNT register will count up to the value in the ARR. 
+We know that the timer CNT register will count up to the value in the ARR, starting from 0.
 When CNT equals ARR, overflow happens and the CNT is reset to 0. 
+Hence, there are ARR + 1 counts which happen.
 Additionally, an Update Event (UE) will generally be generated. 
 This update event can optionally cause an Update Interrupt (UI).\\
 
@@ -91,7 +92,7 @@ Of course you will need to adjust that equation should it be specified that the 
 We know that each tick of the CNT register happens after time $t_{CNT}$ as calculated above. We know that the timer will count from 0 to the value in the ARR before overflow happens. 
 Hence, we know that the time between overflows is equal to:
 \begin{equation}
-    t_{OVERFLOW} = t_{CNT} \times \text{ARR} = \frac{(\text{PSC} + 1) \times \text{ARR}}{\SI{8}{\mega\hertz}}
+  t_{OVERFLOW} = t_{CNT} \times (\text{ARR} + 1) = \frac{(\text{PSC} + 1) \times (\text{ARR} + 1)}{\SI{8}{\mega\hertz}}
 \end{equation}
 
 Naturally, the frequency of overflow events is the inverse of the above.
