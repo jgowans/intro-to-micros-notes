@@ -24,16 +24,18 @@ For example, assume that we wanted to ascertain the machine code representation 
 The opcodes for each instruction are detailed in the ARMv6-M Architecture Reference Manual.
 All of the instructions in the program are 16 bits long and are stored sequentially after one another in flash memory. 
 
-
-
 \section{Linking}
 Once our assembly code has been written and compiled to machine code, the computer which loads the code onto the micro has to be told what addresses to place the code at. The code should be placed starting at the beginning of flash.
 
-\subsection{Executing Code}
+\section{Executing Code}
 The PC always points to the instruction which is about to be fetched. Hence, when your micro boots up, before it has executed anything, the PC will point to the first instruction to be fetched/decoded/executed. By "point to" we mean that it holds the address of the instruction. 
 
 As each instruction in the ARM Cortex-M0 instruction set it 16 bits (aka: half a word) long, ARM have implemented a rule that all instructions must be half word alligned. In other words, the address of the instruction must be divisible by 2 bytes. Legal addresses for instructions are hence, 0x02, 0x04, 0x06, 0x08 ... etc. 
-This means that the least significant bit (bit 0) of the PC register is unused in specifcying the address of an instruction. 
+This means that the least significant bit (bit 0) of the PC register is unused in specifying the address of an instruction. 
 Hence, it has been assigned another use. Specifically, to indicate the instruction set which is being executed. 
 
+\section{Some Useful Instructions}
+\subsection{MOV}
+MOV or the variant MOVS is useful for moving data within the CPU. The instruction can either be used to move (a better word would be 'copy') the contents of one register to another register. 
+How can we get data into a CPU register? The easiest way is with a M
 
