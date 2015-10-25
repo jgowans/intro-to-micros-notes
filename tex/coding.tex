@@ -16,10 +16,10 @@ Our CPU has an instruction set which is around 55 instructions big. An expanded 
 The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Assembly code must be compiled to machine code. A machine code instruction is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
 For example, assume that we wanted to ascertain the machine code representation of the instruction \texttt{ADDS R6, R0, R1}. An extact from the ARMv6-M Architecture Reference Manual is shown in \autoref{fig:adds_encoding} where Rd is the destination register and Rm and Rn are the source registers of the add. It can easily be seen that the instruction would compile to\texttt{ 0001100 001 000 110 = 0x1846}. The fixed bits at the start of the instruction are the opcode. This tells the CPU it's an ADD instruction it must do. The other three sets of three bits are the operands which specifiy the registers which the CPU must use in the ADD instruction. 
 \begin{figure}
-\centering
-\includegraphics[width=0.7\textwidth]{./week1/adds_encoding}
-\caption{An encoding of the ADDS instruction}
-\label{fig:adds_encoding}
+  \centering
+  \includegraphics[width=0.7\textwidth]{./fig/adds_encoding.png}
+  \caption{An encoding of the ADDS instruction}
+  \label{fig:adds_encoding}
 \end{figure}
 The opcodes for each instruction are detailed in the ARMv6-M Architecture Reference Manual.
 All of the instructions in the program are 16 bits long and are stored sequentially after one another in flash memory. 
@@ -36,6 +36,7 @@ Hence, it has been assigned another use. Specifically, to indicate the instructi
 
 \section{Some Useful Instructions}
 \subsection{MOV}
-MOV or the variant MOVS is useful for moving data within the CPU. The instruction can either be used to move (a better word would be 'copy') the contents of one register to another register. 
-How can we get data into a CPU register? The easiest way is with a M
+MOV or the variant MOVS is useful for moving data within the CPU. The instruction can either be used to move (a better word would be 'copy') the contents of one register to another register or some immediate data encoded in the instruction into a register. There are hence two ways which the instrucion can be used. Either MOVS Rd, \#imm which will move the 8-bit number specified by \#imm into the destination register Rd. The 8-bit number will be moved into the LSB of the register and the other bits will be set to 0. Example: MOVS R0, \#0xAA. Or, the other way is between two registers. MOVS Rd, Rm will copy the contents of Rm into Rd. It will copy all 32 bits.
+
+TODO: discuss more instruction here or delete this section. 
 

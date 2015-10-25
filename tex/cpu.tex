@@ -6,7 +6,7 @@ The ARM Cortex-M0 CPU is certainly the most interesting block inside the STM32F0
 \section{Programmer's Model of the CPU}
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.9\textwidth]{./week1/programmers_model_v1.pdf}
+  \includegraphics[width=0.9\textwidth]{./fig/programmers_model_v1.pdf}
   \caption{A view of the internals of the STM32F051 with the ARM Cortex-M0 expanded}
   \label{fig:prog_mod_v1}
 \end{figure}
@@ -42,17 +42,17 @@ Typically, the value of the PC is simply incremented by 2 in order to cause it t
 There is a bit more complexity to the program counter than initially apparent. It's worth understanding this extra intricacy as it affects how other instructions which depend on the program counter work. 
 The ARM Cortex-M0 implements a three stage pipeline. This means that an instruction is broken up into three parts, and executed over the course of three clock cycles. The parts are:
 \begin{itemize}
-\item \textbf{fetch:} the instruction which the program counter points to is pulled into the CPU.
-\item \textbf{decode:} the CPU control unit "looks" at the 16 bits which represent the instruction, and figures out what action it must take.
-\item \textbf{execute:} the CPU runs the instruction, causing data to be modified.
+  \item \textbf{fetch:} the instruction which the program counter points to is pulled into the CPU.
+  \item \textbf{decode:} the CPU control unit "looks" at the 16 bits which represent the instruction, and figures out what action it must take.
+  \item \textbf{execute:} the CPU runs the instruction, causing data to be modified.
 \end{itemize}
 The fact that the CPU is pipelined means that different instructions can be going through different phases \emph{at the same time}. In other words, one instruction can be being fetched while another is being decoded while another is being executed. 
 As an example, assume we have three instructions which we want to execute, instruction A, instruction B and instruction C. The three instructions being run through the pipeline is shown graphically in \autoref{fig:pipeline}. It's critical to note how the program counter is always pointing to the instruction being \emph{fetched}. This makes sense as the job of the program counter after all is to facilitate keeping track of which instruction must be fetched. For this reason, when an instruction is being executed, the PC is actually pointing to two instructions (four bytes) further ahead in memory, and \emph{not} at the address of the instruction in execution. Hence, when an instruction in execution uses the PC, the value which will be used is the address of the instruction plus four.
 \begin{figure}
   \centering
-\includegraphics[page=1, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./week2/pipeline}
-\includegraphics[page=2, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./week2/pipeline}
-\includegraphics[page=3, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./week2/pipeline}
+  \includegraphics[page=1, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./fig/pipeline.pdf}
+  \includegraphics[page=2, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./fig/pipeline.pdf}
+  \includegraphics[page=3, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./fig/pipeline.pdf}
 \caption{Showing three instructions being run through a three stage pipeline, as well as where the PC is pointing every cycle}
 \label{fig:pipeline}
 \end{figure}
