@@ -10,21 +10,26 @@ While a GPIO pin is able to digitise the voltage to only 1 bit, the ADC can digi
 
 \begin{table}[t]
 \centering
-\begin{tabu}{c | l}
-    Output & Voltage Band (V)\\
+\begin{tabu}{c | c | l}
+  Output & Midpoint (V) & Voltage Range (V)\\
       \hline
-      00 & 0.00 - 0.75\\
-      01 & 0.75 - 1.50 \\
-      01 & 1.50 - 2.25 \\
-      11 & 2.25 - 3.00 \\
+      00 & 0 & 0 - 0.3\\
+      00 & 0.6 & 0.3 - 0.9\\
+      01 & 1.2 & 0.9 - 1.5\\
+      01 & 1.8 & 1.5 - 2.1\\
+      11 & 2.4 & 2.1 - above\\
 \end{tabu}
 \caption{Numerical output vs applied voltage band for a 2 bit ADC running off of 3 V}
 \label{tab:2_bit_ADC}
 \end{table}
 
-The number of bits determines the number of \emph{quantization levels} which the system has. Quantisation levels are the voltage bands which the digitiser produces. 
+The number of bits determines the number of \emph{quantization levels} which the system has. A quantisation level is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation levels where \(M\) is the number of bits of the ADC. 
+A change of 1 in the value of the digital output corresponds to going to the next quantisation level. If there are \(N\) quantisation levels and the reference voltage (Vref) is \(V\) volts, then each quantisation level is \(Q = \frac{V}{N}\) volts wide. 
+Each quantisation level is a voltage range. A change in one least significant bit (lsb) of the digital output of the ADC corresponds to going to the next quantisation level. 
+
+
 Consider the trivial case: a GPIO pin. This digitises to 1 bit, and hence has $2^1 = 2$ quantisation levels. Specifically: a logic high or a logic low.
-If we consider a system running off of a 3 V supply rail, the two levels would be 0 V to 1.5 V and 1.5 V to 3 V\footnote{Actually, a GPIO pin is more complicated due to its hysteresis which defines different levels for high-to-low or low-to-high transitions.}. If the applied voltage is between 0 V and 1.5 V the digitiser will produce an output of 0. If the applied voltage is between 1.5 V and 3 V the digitiser will produce a logic 1. Clearly the `size' of each quantisation level is equal to $\frac{V}{N} = \frac{3}{2} = $ 1.5 V \\
+If we consider a system running off of a 3 V supply rail, the two levels could be 0 V to 1.5 V and 1.5 V to 3 V. If the applied voltage is between 0 V and 1.5 V the digitiser will produce an output of 0. If the applied voltage is between 1.5 V and 3 V the digitiser will produce a logic 1\footnote{Our ADC does not actually split the levels like this. Also, a GPIO pin is more complicated due to its hysteresis which defines different levels for high-to-low or low-to-high transitions.}. Clearly the `size' of each quantisation level is equal to $\frac{V}{N} = \frac{3}{2} = $ 1.5 V \\
 
 Now consider the case where we have an ADC which can produce 2 bits of output. Here we will have $2^2 = 4$ quantisation levels. The size of each level will be $\frac{V}{N} = \frac{3}{4} =$ = 0.75 V. The relationship between digital output and applied voltage can be seen in \autoref{tab:2_bit_ADC}.
 

@@ -1,0 +1,31 @@
+\chapter{Multi File Projects}
+Very often it becomes useful to have multiple files in our projects, rather than putting all code into one file.
+There are two main reasons for this:
+\begin{enumerate}
+  \item Logical separation for abstraction. Large project will almost certainly have logically separate or self-contained tasks which need to be carried out.
+    By blocks of code which carry out some broad. File implementing some functionality.
+  \item Code reuse. The functionality provided by the file may well be useful enough to be something which you want to use again in another project.
+    By having just that functionality in a single file, just that file can be copied to a new project thereby providing that functionality to the other projects.
+    It makes it very easy to reuse some code.
+\end{enumerate}
+How many files should you have? At what stage should some complicated, multi-layered file be broken up into smaller files? Should a block of code be broken up into functions? How many function? These are the sort of questions which make it clear that programming is sometimes more of an art than a science. The short answer is: whatever is most useful. With practice and experience you will begin to develop an intuition for what is useful and will be able to know what abstractions you will use even before you start writing code. 
+
+Here we will discuss how to implement a multi file project.
+
+\section{Static Functions}
+Lets say you have a source file myFile.c. Inside that file are a few functions. Some of those functions should be global functions such that they are visible (can be called) from anywhere in the project.
+Some of those functions, however, you only want to be used from within myFile.c and you want them not to be exposed to the rest of the project, polluting the namespace of the project. 
+For example, you could have the functions foo() and bar() inside myFile.c. Here, perhaps foo() calls bar() but you don't want to make bar() accessible elsewhere. Make it static.
+
+\section{Headers and Source}
+Each source file is compiled separately to an object file with relative addressing.
+At link time, the BL instructions have their references resolved. That's basically the only change that the linker makes to the code: resolving references to other files.
+The linker does not and cannot check that the call you're making to another file is done correctly in terms of arguments and return value.
+This must be done by the compiler. How?
+Header file written. This is simply a collection of function \emph{declarations} or prototypes, not definitions or implementations. Implementations go in source file.
+This header file tells the compiler what a function looks like in terms of name, arguments, return type. 
+The header is use in two places: where the function in question is implemented to ensure that it's implemented as specified in the header. Where the function is called to ensure it's being called correctly.
+By having a single authoritative place (the header file) which is used for checking both the implementation and calling of a function, it ensures that the function is being called correctly.
+
+How \#include works: read file, place file contents in location as if it had been typed out there.
+Note: all included files should be makefile dependencies. 

@@ -50,11 +50,14 @@ There is often a case where you wish to modify only one or two of the bits of a 
 \begin{lstlisting}[fontadjust=true,frame=trBL]
 @ assuming Rn contains the address of the register to modify:
 LDR R0, [Rn]    
-LDR R1, =0b11111111111111111111111111000110
+LDR R1, MASK_OUT
 ANDS R0, R0, R1
 MOVS R1, #0x06
 ORRS R0, R0, R1
 STR R0, [Rn]
+...
+.align
+MASK_OUT: .word 0b11111111111111111111111111000110
 \end{lstlisting}
 
 

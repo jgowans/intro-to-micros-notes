@@ -51,7 +51,8 @@ In order to minimize the hardware cost of the ALU circuitry, the subtract operat
 The branch (\texttt{B}) instruction is able to take optional condition code suffixes which specify whether or not the instruction will be executed depending on the state of the flags in the APRS. 
 These suffixes are shown in \autoref{fig:cc_suff}. A suffix can be appended to the \texttt{B} instruction to turn it into a conditional branch. For example, \texttt{BEQ} will be taken if the result of the last computation produced a zero result. Similarly, \texttt{BNE} will be taken if the result was non-zero. 
 
-The mnemonics for the suffixes are closely related to the compare operation. For example, the BGT (branch if greater than when treated as signed numbers) will be taken if the Rm operand of the CMP instruction is greater than the Rn operand when treated as signed numbers. This is why the CMP and B\{cc\}  instructions go so well together.
+The mnemonics for the suffixes are closely related to the compare operation. For example, the BGT (branch if greater than when treated as signed numbers) will be taken if the Rn operand of the CMP instruction is greater than the Rm operand when treated as signed numbers. This is why the CMP and B\{cc\}  instructions go so well together.
+Note that the mnemonic is testing how Rn is related to the immediate number or Rm. So if the condition is some arithmetic relationship, it's asking whether Rn has that property compared to Rm/imm.
 
 \begin{figure}
 \centering
