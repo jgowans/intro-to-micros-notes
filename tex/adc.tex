@@ -1,32 +1,42 @@
 \chapter{Analogue to Digital Converter}
 \section{Functional Theory}
 Before discussing an Analogue to Digital Converter (ADC), first consider the simple GPIO pin configured as an input. 
-The pin `reads' the voltage applied to it and produces a binary number (a 1 or a 0) which indicates whether the applied voltage is a high or low. Technically this GPIO pin is an analogue to digital converter: it takes an analogue voltage and produces a binary number.
-However, having only 1 bit to represent the voltage applied to the pin means that we get a very poor approximation of the voltage. For example, we cannot tell the different between 2 V and 3 V being applied to the pin: both of those voltages are considered a logic 1. 
+The pin `reads' the voltage applied to it and produces a binary number (a 1 or a 0) which indicates whether the applied voltage is a high or low. Technically this GPIO pin is an analogue to digital converter: it takes an analogue voltage and produces a binary number representing that voltage. 
+However, having only 1 bit to represent the voltage applied to the pin means that we get a very poor approximation of the voltage. 
+For example, we cannot tell the different between 2 V and 3 V being applied to the pin: both of those voltages are considered a logic 1. 
 For this reason we do not typically refer to a GPIO pin as an ADC, rather we refer to it as a digital input.
 
 The term ADC is typically reserved for a peripheral inside the microcontroller which has the ability to provide a much higher resolution and higher accuracy numerical approximation of the applied voltage. 
 While a GPIO pin is able to digitise the voltage to only 1 bit, the ADC can digitise the voltage to many bits. 
+
+The number of bits determines the number of \emph{quantization levels} which the system has. A quantisation level is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation levels where \(M\) is the number of bits of the ADC. 
+A change of one \emph{least significant bit} of the value of the digital output corresponds to going to the next quantisation level. 
+As stated, there are \(N\) quantisation levels. If we have a reference voltage \(V_{ref}\) volts, then each quantisation level is \(Q = \frac{V_{ref}}{N}\) volts wide.
+We realise that each digital output corresponds to a \emph{range} of input voltages. How big is the range? Seeing as the ADC can only work in multiple of a lsb, the range must be one lsb wide. 
+The ADC in the STM32 has been structured such that the midpoint of the range which produced a digital output of \(k\) is equal to \(v_{k} = k \times \frac{V_{ref}}{N}\). Hence, the range is: \(k \times Q - 0,5 Q\)
+
+It must be stressed that different ADC architectures may have a slightly different transfer function (the relationship between the input voltage and output digital value). The transfer function discussed above is the one implemented by our STM32.
+
+\section{Example Calculation}
+For an example of this, let's consider the case of a 3 bit ADC running off of a Vref of \SI{3.0}{\volt}. One lsb has a value of \(V_{lsb} = \frac{\SI{3}{\volt}}{2^3} = \SI{0.375}{\volt}\).
 
 \begin{table}[t]
 \centering
 \begin{tabu}{c | c | l}
   Output & Midpoint (V) & Voltage Range (V)\\
       \hline
-      00 & 0 & 0 - 0.3\\
-      00 & 0.6 & 0.3 - 0.9\\
-      01 & 1.2 & 0.9 - 1.5\\
-      01 & 1.8 & 1.5 - 2.1\\
-      11 & 2.4 & 2.1 - above\\
+      000 & 0 & below 0.1875 \\
+      001 & 0.375 & 0.1875 to 0.5625 \\
+      010 & 0.75 & 0.5625 to 0.9375 \\
+      011 & 1.125 & 0.9375 to 1.3125\\
+      100 & 1.5 &  1.3125 to 1.6875\\
+      101 & 1.875 & 1.6875 to 2.0625 \\
+      110 & 2.25 & 2.0625 to 2.4375 \\
+      111 & 2.625 & 2.4375 and above\\
 \end{tabu}
 \caption{Numerical output vs applied voltage band for a 2 bit ADC running off of 3 V}
 \label{tab:2_bit_ADC}
 \end{table}
-
-The number of bits determines the number of \emph{quantization levels} which the system has. A quantisation level is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation levels where \(M\) is the number of bits of the ADC. 
-A change of 1 in the value of the digital output corresponds to going to the next quantisation level. If there are \(N\) quantisation levels and the reference voltage (Vref) is \(V\) volts, then each quantisation level is \(Q = \frac{V}{N}\) volts wide. 
-Each quantisation level is a voltage range. A change in one least significant bit (lsb) of the digital output of the ADC corresponds to going to the next quantisation level. 
-
 
 Consider the trivial case: a GPIO pin. This digitises to 1 bit, and hence has $2^1 = 2$ quantisation levels. Specifically: a logic high or a logic low.
 If we consider a system running off of a 3 V supply rail, the two levels could be 0 V to 1.5 V and 1.5 V to 3 V. If the applied voltage is between 0 V and 1.5 V the digitiser will produce an output of 0. If the applied voltage is between 1.5 V and 3 V the digitiser will produce a logic 1\footnote{Our ADC does not actually split the levels like this. Also, a GPIO pin is more complicated due to its hysteresis which defines different levels for high-to-low or low-to-high transitions.}. Clearly the `size' of each quantisation level is equal to $\frac{V}{N} = \frac{3}{2} = $ 1.5 V \\
