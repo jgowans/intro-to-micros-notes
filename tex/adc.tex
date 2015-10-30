@@ -1,5 +1,5 @@
 \chapter{Analogue to Digital Converter}
-\section{Functional Theory}
+
 Before discussing an Analogue to Digital Converter (ADC), first consider the simple GPIO pin configured as an input. 
 The pin `reads' the voltage applied to it and produces a binary number (a 1 or a 0) which indicates whether the applied voltage is a high or low. Technically this GPIO pin is an analogue to digital converter: it takes an analogue voltage and produces a binary number representing that voltage. 
 However, having only 1 bit to represent the voltage applied to the pin means that we get a very poor approximation of the voltage. 
@@ -7,53 +7,62 @@ For example, we cannot tell the different between 2 V and 3 V being applied to t
 For this reason we do not typically refer to a GPIO pin as an ADC, rather we refer to it as a digital input.
 
 The term ADC is typically reserved for a peripheral inside the microcontroller which has the ability to provide a much higher resolution and higher accuracy numerical approximation of the applied voltage. 
-While a GPIO pin is able to digitise the voltage to only 1 bit, the ADC can digitise the voltage to many bits. 
+While a GPIO pin is able to digitise the voltage to only 1 bit, the ADC can typically digitise the voltage to many bits. 
 
-The number of bits determines the number of \emph{quantization levels} which the system has. A quantisation level is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation levels where \(M\) is the number of bits of the ADC. 
+\section{Transfer Function}
+A transfer function is the mathematical relationship between the input voltage and the output value of the ADC.
+Different ADCs with different architectures have different transfer functions. What is discussed here is the transfer function for the ADC used inside our STM32F051 microcontroller. 
+
+First note that because we have a finite number of possible numberical outputs of the ADC which must map to the full voltage range which the ADC operates over, each numerical output of the ADC corresponds to a \emph{range} of input voltage. 
+The number of bits determines the number of possible numerical outputs or \emph{quantization levels}\footnote{It should probably be more accurately called a quantisation \emph{range} but sadly it's not.} which the system has. A quantisation level is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation levels where \(M\) is the number of bits of the ADC. 
 A change of one \emph{least significant bit} of the value of the digital output corresponds to going to the next quantisation level. 
-As stated, there are \(N\) quantisation levels. If we have a reference voltage \(V_{ref}\) volts, then each quantisation level is \(Q = \frac{V_{ref}}{N}\) volts wide.
+
+As stated, there are \(N\) quantisation levels. An ADC will typically digitise voltages between \SI{0}{\volt} (ground) and some upper limit, \(V_{ref}\) which is often set to the supply voltage of the microcontroller. If we have a reference voltage \(V_{ref}\) volts, then each quantisation level is \(Q = \frac{V_{ref}}{N}\) volts wide.
 We realise that each digital output corresponds to a \emph{range} of input voltages. How big is the range? Seeing as the ADC can only work in multiple of a lsb, the range must be one lsb wide. 
-The ADC in the STM32 has been structured such that the midpoint of the range which produced a digital output of \(k\) is equal to \(v_{k} = k \times \frac{V_{ref}}{N}\). Hence, the range is: \(k \times Q - 0,5 Q\)
+The ADC in the STM32 has been structured such that the midpoint of the range which produced a digital output of \(k\) is equal to \(V_{k} = k \times \frac{V_{ref}}{N}\). 
+Hence, the range of input voltage corresponding to a digital output of \(k\) is: \(kQ - 0.5Q\) to \(kQ + 0.5Q\). Intuitively, this is \(k\) lsbs with half a lsb uncertainty each way. 
 
 It must be stressed that different ADC architectures may have a slightly different transfer function (the relationship between the input voltage and output digital value). The transfer function discussed above is the one implemented by our STM32.
 
 \section{Example Calculation}
-For an example of this, let's consider the case of a 3 bit ADC running off of a Vref of \SI{3.0}{\volt}. One lsb has a value of \(V_{lsb} = \frac{\SI{3}{\volt}}{2^3} = \SI{0.375}{\volt}\).
+For an example of this, let's consider the case of a 3 bit ADC running off of a Vref of \SI{4.0}{\volt}. One lsb has a value of \(V_{lsb} = \frac{\SI{4}{\volt}}{2^3} = \SI{0.5}{\volt}\).
+Half a lsb, or the uncertainy around each value is hence \(\frac{\SI{0.5}{\volt}}{2} = \SI{0.25}{\volt}\)
+Hence, the input voltage range for a digital output of \(k\) is equal to \((k \times \SI{0.5}{\volt}) \pm \SI{0.25}{\volt}\).
+All input/output values for this example ADC are shown in \autoref{tab:3-bit-adc}. \\
 
 \begin{table}[t]
 \centering
 \begin{tabu}{c | c | l}
   Output & Midpoint (V) & Voltage Range (V)\\
       \hline
-      000 & 0 & below 0.1875 \\
-      001 & 0.375 & 0.1875 to 0.5625 \\
-      010 & 0.75 & 0.5625 to 0.9375 \\
-      011 & 1.125 & 0.9375 to 1.3125\\
-      100 & 1.5 &  1.3125 to 1.6875\\
-      101 & 1.875 & 1.6875 to 2.0625 \\
-      110 & 2.25 & 2.0625 to 2.4375 \\
-      111 & 2.625 & 2.4375 and above\\
+      000 & 0 & below 0.25 \\
+      001 & 0.5 & 0.25 to 0.75 \\
+      010 & 1.0 & 0.75 to 1.25 \\
+      011 & 1.5 & 1.25 to 1.75\\
+      100 & 2.0 & 1.75 to 2.25\\
+      101 & 2.5 & 2.25 to 2.75 \\
+      110 & 3.0 & 2.75 to 3.25 \\
+      111 & 3.5 & 3.25 and above\\
 \end{tabu}
-\caption{Numerical output vs applied voltage band for a 2 bit ADC running off of 3 V}
-\label{tab:2_bit_ADC}
+\caption{Numerical output vs applied voltage band for a 3 bit ADC running off of \SI{4}{\volt}}
+\label{tab:3-bit-adc}
 \end{table}
 
-Consider the trivial case: a GPIO pin. This digitises to 1 bit, and hence has $2^1 = 2$ quantisation levels. Specifically: a logic high or a logic low.
-If we consider a system running off of a 3 V supply rail, the two levels could be 0 V to 1.5 V and 1.5 V to 3 V. If the applied voltage is between 0 V and 1.5 V the digitiser will produce an output of 0. If the applied voltage is between 1.5 V and 3 V the digitiser will produce a logic 1\footnote{Our ADC does not actually split the levels like this. Also, a GPIO pin is more complicated due to its hysteresis which defines different levels for high-to-low or low-to-high transitions.}. Clearly the `size' of each quantisation level is equal to $\frac{V}{N} = \frac{3}{2} = $ 1.5 V \\
-
-Now consider the case where we have an ADC which can produce 2 bits of output. Here we will have $2^2 = 4$ quantisation levels. The size of each level will be $\frac{V}{N} = \frac{3}{4} =$ = 0.75 V. The relationship between digital output and applied voltage can be seen in \autoref{tab:2_bit_ADC}.
-
-
-From these two simple examples we start to build up a picture of how the ADC relates applied voltage to numerical output:
+We see, therefore, that in general to calculate the corresponding input voltage range for a certain digital output:
 \begin{itemize}
-\item The supply rail is divided up into $N = 2^M$ levels, where $M$ is the number of bits of the ADC.
-\item Each quantisation level has a range of $Q = \frac{V}{N}$ volts.
-\item The start of level $k$ is equal to $k \times Q$ where $k$ is some number produced by the ADC.
-\item The end of level $k$ is equal to the start of the next level, or: $(k+1) \times Q$.
-\item An applied voltage $v$ will produce a numerical output of $\lfloor v \div Q \rfloor $.\footnote{The `$\lfloor$' and `$\rfloor$' symbols mean `floor'. In other words: round down to the nearest integer.} This essentially says: "We know each level is $Q$ voltage wide. How many levels up must we go to get to voltage $v$?"
+  \item Calculate the size of each quantisation level (aka: value of one lsb): \(Q = \frac{V_{ref}}{2^M}\) volts.
+  \item The output \(k\) means we go up \(k\) quantisation levels to the midpoint: \(kQ\)
+  \item Add the uncertainty each way, half a lsb: \(\pm 0.5Q\)
 \end{itemize}
 
-That concludes the overview of what an ADC is and how it relates applied voltage to numerical output. We will now consider how to configure and use the ADC on our STM32.
+\section{ADC calibration}
+Inside the STM32F051 is a Switched Capacitor Successive Approximation Register Analogue to Digital Converter (SC SAR ADC). 
+This ADC architecture consists of an array of capacitors, which can be selectively switched to GND or Vref. Each capacitor has a binary relationship to the next one, meaning that it's half the size. In other words, the first cap has a value of C, the second of half C, the third of a quart C, then an eighth C etc. 
+The logic of the ADC charges all of the caps up to the input voltage and then proceeds to successively change the configuration of the caps by toggling internal switches, thereby distributing charge around.
+The voltage of the caps is internally compared to a fixed voltage (in our case ground) using a comparator.
+
+
+That concludes the overview of what an ADC is and how it works inside. We will now consider how to configure and use the ADC on our STM32.
 
 \section{Using the ADC}
 \subsection{Enabling}
