@@ -94,21 +94,33 @@ Obviously, it must happen somewhere in RAM, as RAM is the block of memory which 
 The place is RAM which is used for the variable is determined by the storage duration or lifetime of the variable. 
 There are two storage duration classes for variables: static and automatic. These will now be explored. 
 
-\subsection{Static Variables}
-Static variables are either allocated outside of functions (ie: global variables) or are allocated inside a function with the \texttt{static} qualifier keyword. 
-The variable's lifespan is the entire duration of the program. That is, a spot in memory is allocated to that variable at compile time and that spot never changes or gets deallocated. No other variable will be allocated to that space.
-
-Static variables are allocated memory at the \emph{start} of RAM. The block of memory which they live in is called the data segment. This is shown graphically in \autoref{fig:mem_allocation}.
-Static variables are initialised to the value 0 unless you specify some other initial value.
-
-\subsection{Automatic Variables}
-We frequently only need a variable for some a short duration, such as when some function is called. When the function completes (returns) then that variable is no longer needed.
+\section{Automatic Variables}
+We frequently only need a variable for some a short duration, such as when some function is called so that the variable can be used for sotring intermediate data needed in the algorithm of the function.
+When the function completes (returns) then that variable is no longer needed.
 For this use-case, \emph{automatic} variables exist. 
-These are variables which are only allocated a spot in memory when a function call happens and deallocated on return. 
+These are variables which are only have memory allocated for them when a function call happens and are automatically deallocated on return. 
 Automatic variables are those which are defined inside a function without the \texttt{static} keyword. Any variable defined inside a function is called a local variable and is only visible within that function. This is as opposed to a global variable which is visible to all functions. 
 The great advantage of automatic variables is that by only occupying memory for a short time we are able to make more efficient use of memory. 
 
 Where do automatic variables get allocated in memory? Well, they need to be somewhere that easily the dynamic allocation and deallocation of memory. This is exactly that the stack does! When you \texttt{PUSH} a value to the stack it allocates some memory. When you \texttt{POP} a value it deallocates space on the stack. As such, the stack is used for automatic variables. Where the stack is and the direction which it grows in is shown in \autoref{fig:mem_allocation}.
+
+When a function call happens, the first things that the function does is allocates space for all of its automatic variables\footnote{More accurately, it's actually when a block is entered into, any variables defined in that block are allocated.}. How? The stack pointer is decremented by some amount to make space on the stack for all of the variables. The compiler keeps track of which spot on the stack maps to which variable name. If any of those automatica variables have initialisation values, then the function goes and sets the memory spaces allocated to the initialised automatic variables to their initialisation values. If there is no initialisation value, then the variable takes on whatever data happened to be at the memory address which was allocated to it (ie: a random(ish) value). The functions runs this initialsiation procedure every time it is called. 
+
+When the function returns, the space is deallocated by simply putting the stack pointer back to wherever it was before the function was called. 
+
+\section{Statically Allocated Variables}
+Static variables are either allocated outside of functions (ie: global variables) or are allocated inside a function with the \texttt{static} qualifier keyword. 
+A statically allocated var
+The variable's lifespan is the entire duration of the program. That is, a spot in memory is allocated to that variable at compile time and that spot never changes or gets deallocated. No other variable will be allocated to that space.
+
+At compile lime (well, technically link time), statically allocated variables get allocated memory at the \emph{start} of RAM. Statically allocated variables can be initialised to an explicit value or can have no initialisation value provided. If no initialisation values is provided, they will be default initialised to 0. Note that this memory initialision must be performed before the code which access the variables gets run. This will be discussed more later.
+
+Statically allocated variables are split up into two memory sections: the .data section for variables which are initialised to non-zero values and the .bss section for variables which are initialised to zero.
+Why? Well, it turns out that very often statically allocated variables are initialised to 0 as they are often used as some shared flag or counter. 
+Realising that many of these variables are initialised to 0, it makes sense to optimise for variables with the value 0.
+The optimisation which is achieved by putting all statically allocated variables with initialisation value of 0 into their own section is that when we want to initialise them, we can just store the start address of the section and the send address of the section and then go ahead and set every memory address in that section to 0.
+This is more efficient that storing a whole block of 0s and then copying that block from flash to RAM during initialisation. 
+Static variables are initialised to the value 0 unless you specify some other initial value.
 
 \begin{figure}
     \centering
@@ -121,10 +133,10 @@ Where do automatic variables get allocated in memory? Well, they need to be some
 The following is a simple example showing where and how different storage class variables are defined.
 
 \begin{lstlisting}[language=C]
-int8_t foo;                 // global static variable. 
+int8_t foo;                 // global static variable. Defaults to 0.
 void someFunction(void) {
-    uin32_t bar;            // local automatic variable
-    static int16_t baz;     // local static variable
+    int8_t bar;            // local automatic variable. `Random' value.
+    static int16_t baz;     // local static variable. Defaults to 0.
 }
 \end{lstlisting}
 

@@ -14,15 +14,24 @@ A transfer function is the mathematical relationship between the input voltage a
 Different ADCs with different architectures have different transfer functions. What is discussed here is the transfer function for the ADC used inside our STM32F051 microcontroller. 
 
 First note that because we have a finite number of possible numberical outputs of the ADC which must map to the full voltage range which the ADC operates over, each numerical output of the ADC corresponds to a \emph{range} of input voltage. 
-The number of bits determines the number of possible numerical outputs or \emph{quantization levels}\footnote{It should probably be more accurately called a quantisation \emph{range} but sadly it's not.} which the system has. A quantisation level is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation levels where \(M\) is the number of bits of the ADC. 
-A change of one \emph{least significant bit} of the value of the digital output corresponds to going to the next quantisation level. 
+The number of bits determines the number of possible numerical outputs or \emph{quantization intervals} which the system has. A quantisation interval is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation intervalss where \(M\) is the number of bits of the ADC. 
+A change of one \emph{least significant bit} of the value of the digital output corresponds to going to the next quantisation interval. 
 
-As stated, there are \(N\) quantisation levels. An ADC will typically digitise voltages between \SI{0}{\volt} (ground) and some upper limit, \(V_{ref}\) which is often set to the supply voltage of the microcontroller. If we have a reference voltage \(V_{ref}\) volts, then each quantisation level is \(Q = \frac{V_{ref}}{N}\) volts wide.
+As stated, there are \(N\) quantisation intervals. An ADC will typically digitise voltages between \SI{0}{\volt} (ground) and some upper limit, \(V_{ref}\) which is often set to the supply voltage of the microcontroller. If we have a reference voltage \(V_{ref}\) volts, then each quantisation interval is \(Q = \frac{V_{ref}}{N}\) volts wide.
 We realise that each digital output corresponds to a \emph{range} of input voltages. How big is the range? Seeing as the ADC can only work in multiple of a lsb, the range must be one lsb wide. 
 The ADC in the STM32 has been structured such that the midpoint of the range which produced a digital output of \(k\) is equal to \(V_{k} = k \times \frac{V_{ref}}{N}\). 
 Hence, the range of input voltage corresponding to a digital output of \(k\) is: \(kQ - 0.5Q\) to \(kQ + 0.5Q\). Intuitively, this is \(k\) lsbs with half a lsb uncertainty each way. 
 
-It must be stressed that different ADC architectures may have a slightly different transfer function (the relationship between the input voltage and output digital value). The transfer function discussed above is the one implemented by our STM32.
+It must be stressed that different ADC architectures may have a slightly different transfer function (the relationship between the input voltage and output digital value). 
+The transfer function discussed above is the one implemented by our STM32.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{adc_transfer.png}
+  \caption{Example graph of ADC transfer function for 3-bit ADC}
+  \label{fig:adc-transfer-graph}
+\end{figure}
+
 
 \section{Example Calculation}
 For an example of this, let's consider the case of a 3 bit ADC running off of a Vref of \SI{4.0}{\volt}. One lsb has a value of \(V_{lsb} = \frac{\SI{4}{\volt}}{2^3} = \SI{0.5}{\volt}\).
@@ -50,16 +59,47 @@ All input/output values for this example ADC are shown in \autoref{tab:3-bit-adc
 
 We see, therefore, that in general to calculate the corresponding input voltage range for a certain digital output:
 \begin{itemize}
-  \item Calculate the size of each quantisation level (aka: value of one lsb): \(Q = \frac{V_{ref}}{2^M}\) volts.
-  \item The output \(k\) means we go up \(k\) quantisation levels to the midpoint: \(kQ\)
+  \item Calculate the size of each quantisation interval (aka: value of one lsb): \(Q = \frac{V_{ref}}{2^M}\) volts.
+  \item The output \(k\) means we go up \(k\) quantisation intervals to the midpoint: \(kQ\)
   \item Add the uncertainty each way, half a lsb: \(\pm 0.5Q\)
 \end{itemize}
 
-\section{ADC calibration}
+\section{ADC errors and calibration}
 Inside the STM32F051 is a Switched Capacitor Successive Approximation Register Analogue to Digital Converter (SC SAR ADC). 
-This ADC architecture consists of an array of capacitors, which can be selectively switched to GND or Vref. Each capacitor has a binary relationship to the next one, meaning that it's half the size. In other words, the first cap has a value of C, the second of half C, the third of a quart C, then an eighth C etc. 
-The logic of the ADC charges all of the caps up to the input voltage and then proceeds to successively change the configuration of the caps by toggling internal switches, thereby distributing charge around.
-The voltage of the caps is internally compared to a fixed voltage (in our case ground) using a comparator.
+This ADC architecture consists of an array of capacitors, which can be selectively switched to GND or Vref. 
+Each capacitor has a binary relationship to the next one, meaning that it's half the size. 
+In other words, the first cap has a value of \(C\), the second has a value of \(\frac{C}{2}\), the third has a value of \(\frac{C}{4}\), then \(\frac{C}{8}\) etc.
+The total capacitance of the array is typically a few picofarads. 
+The ADC first goes through a \emph{sample} phase whereby it chargest all of the capacitors up to the input voltage. It then disconnects the array of capacitors from the input voltage and goes through the process of approximating the voltage by switching the configuration of the capacitors and comparing the resultant voltage to a fixed voltage using an internal \emph{comparator}. This layout is shown in \autoref{fig:adc-component-level}. 
+
+\begin{figure}
+\centering
+\includegraphics[page=5, clip=true, trim=75 360 75 280, width=\textwidth]{CD00211314.pdf}
+% left, bottom, right, top
+\caption{Internal workings of a SC SAR ADC. Note the analogue components: capacitors and comparator}
+\label{fig:adc-component-level}
+\end{figure}
+
+The key realisation you should take away from this is that an ADC involves the use of analogue components, specifically the capacitors which need to have precise values, and the comparator which ideally will have no input current and no input offset voltage. However, these being analogue components are NOT ideal. The capacitors will not be perfectly matched and the comparator will have some input offset voltage and input current.
+
+The implication of this is that the ADC will not perform perfectly. The quantisation interval which we calculate under the case for a perfect ADC will probably not be how the ADC actually performs.
+There are a few types of errors which an ADC suffers from including gain error, offset error, differential nonlinearity error, integral nonlinearity error, missing codes and duplicate codes. 
+
+The one which I'd like to focus on is offset error. Offset error means that the transfer function is either advanced such that it outputs a higher digital output than it should or delayed such that it outputs a lower digital output than it should. 
+This is shown graphically (and very exaggerated) in \autoref{fig:adc-offset-error}. Naturally, this is bad as it means that actual applied voltage corresponding to a certain digital output is not what we expect it to be. 
+
+We have noticed the case of the positive offset error when working with our ADC. We notice that when turning our pot fully on (ie: going to the maximum value on the analogue input axis) we see that the digital output does not go all the way to the maximum value. Typically this error is small, but it would still be preferable to remove it if possible.\\
+
+Fortunately the ADC has a calibration function which attempts to remove this error. I don't know exactly how it works inside, but I suspect that it connects the analogue input to a known reference voltage, performs a conversion and calculates the difference between the expected digital output and the actual digital output. It then adds or subtracts this offset amount from the digital output every time a conversion is done.
+
+ADC calibration can be performed by setting the ADCAL bit in the ADC Control Register high. This starts the calibration procedure. You must then wait for this bit to be cleared by hardware which indicates that the cal procedure is complete and the ADC can be used. For full instructions, see section 13.4.1 of the reference manual. 
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{adc-offset-error.pdf}
+  \caption{Perfect ADC transfer function in green with no offset error. Transfer functions in red with positive or negative offset errors. Note firstly that these are greatly exaggerated errors from what is usual. A typical uncalibrated error for our ADC will be 1 or 2 percent. Note also that these transfer functions are not smooth lines in reality, they are actually made up of hundreds or thousands of quantisation intervals which are not shown here.}
+  \label{fig:adc-offset-error}
+\end{figure}
 
 
 That concludes the overview of what an ADC is and how it works inside. We will now consider how to configure and use the ADC on our STM32.
