@@ -3,29 +3,81 @@ Very often it becomes useful to have multiple files in our projects, rather than
 There are two main reasons for this:
 \begin{enumerate}
   \item Logical separation for abstraction. Large project will almost certainly have logically separate or self-contained tasks which need to be carried out.
-    By blocks of code which carry out some broad. File implementing some functionality.
+    By placing the blocks of which carry out some broad task into a file it becomes easier to get to grips with how the project works and makes it easier to move between levels of abstraction.
   \item Code reuse. The functionality provided by the file may well be useful enough to be something which you want to use again in another project.
     By having just that functionality in a single file, just that file can be copied to a new project thereby providing that functionality to the other projects.
-    It makes it very easy to reuse some code.
+    It makes it very easy to reuse some code rather than trying to pick out just the relevant bits from one large file. 
 \end{enumerate}
-How many files should you have? At what stage should some complicated, multi-layered file be broken up into smaller files? Should a block of code be broken up into functions? How many function? These are the sort of questions which make it clear that programming is sometimes more of an art than a science. The short answer is: whatever is most useful. With practice and experience you will begin to develop an intuition for what is useful and will be able to know what abstractions you will use even before you start writing code. 
+How many files should you have? At what stage should some complicated, multi-layered file be broken up into smaller files? Should a block of code be broken up into functions? How many function? 
+These are the sort of questions which make it clear that programming is sometimes more of an art than a science. 
+The short answer is: whatever is most useful. 
+With practice and experience you will begin to develop an intuition for what is useful and will be able to know what abstractions you will use even before you start writing code. 
 
 Here we will discuss how to implement a multi file project.
 
-\section{Static Functions}
+\section{Static Visability}
 Lets say you have a source file myFile.c. Inside that file are a few functions. Some of those functions should be global functions such that they are visible (can be called) from anywhere in the project.
 Some of those functions, however, you only want to be used from within myFile.c and you want them not to be exposed to the rest of the project, polluting the namespace of the project. 
 For example, you could have the functions foo() and bar() inside myFile.c. Here, perhaps foo() calls bar() but you don't want to make bar() accessible elsewhere. Make it static.
 
+\begin{lstlisting}[language=C]
+// bar can only be called from within this file
+static void bar(void) {
+  // bar stuff
+}
+
+// foo can be called from anywhere in the project
+void foo(void) {
+  // some stuff
+  bar();
+  // more stuff
+}
+\end{lstlisting}
+
+Seeing as the name foo becomes visible to the entire project when not defined as static, it may be helpful to prefix it with something characters to make it clear which file in the project it comes from. I find that calling my globally visible function myFile\_foo() works well. \\
+
+Exactly the same applies for global variables. As with functions, by default a variable defined in one file can be accessed by all files in the project. Again, as with functions, this can be dangerous if it's not what you expect. You should use the static keywork to make global variables only visible to the function they are defined in unless you really need them to be access from other files (not recommended).
+
+\begin{lstlisting}[language=C]
+static uint8_t var1;  // only visible in this file
+uint8_t myFile_var2;  // visible in whole project.
+\end{lstlisting}
+
+The idea of placing the name of where a symbol is defined in front of a symbol name which is visible throughout the project is demonstrated above. 
+
 \section{Headers and Source}
 Each source file is compiled separately to an object file with relative addressing.
-At link time, the BL instructions have their references resolved. That's basically the only change that the linker makes to the code: resolving references to other files.
+At link time, the BL instructions have their references resolved. That's basically the only change that the linker makes to the object code: resolving references to other files\footnote{Of course, the other critical thing which the linker does is to combine input sections to output sections and allocated absolute addresses, but that doesn't change the machine code}.
 The linker does not and cannot check that the call you're making to another file is done correctly in terms of arguments and return value.
 This must be done by the compiler. How?
-Header file written. This is simply a collection of function \emph{declarations} or prototypes, not definitions or implementations. Implementations go in source file.
-This header file tells the compiler what a function looks like in terms of name, arguments, return type. 
-The header is use in two places: where the function in question is implemented to ensure that it's implemented as specified in the header. Where the function is called to ensure it's being called correctly.
+Header files should be written. A header file is a collection of declarations for all of the symbols which the corresponding source file adds to the project namespace.
+This will include function prototypes for non-static functions and variable declarations for non-static variables\footnote{Using non-static variables across projects has not really been discussed in the course as it's not necessary and actually should be avoided}. 
+
+Note that a header file should only contain \emph{declarations} (aka: prototypes) and not \emph{definitions} (aka: implementations). Implementations go in source file.
+Declarations in a header file tells the compiler what a function looks like in terms of name, arguments, return type whenever that header is \#included. 
+The header is included in two places: where the function in question is implemented to ensure that it's implemented as specified in the header as well as where the function is called to ensure it's being called correctly.
 By having a single authoritative place (the header file) which is used for checking both the implementation and calling of a function, it ensures that the function is being called correctly.
 
-How \#include works: read file, place file contents in location as if it had been typed out there.
-Note: all included files should be makefile dependencies. 
+\subsection{How a \#include works}
+When you write lines like the following, what does the compiler do?
+\begin{lstlisting}[language=C]
+#include "myFile.h"
+#include <someLibrary.h>
+\end{lstlisting}
+
+A bit of background: the job of a C compiler is to convert C code into assembly code. This is all that the C compiler should be made to do. (Unix philosophy: do one thing well)
+In order for the compiler to be able to reliably compile the C code, the code should be in a format which the compiler expects. 
+This is typically a very verbose format which a programmer may not enjoy writing.
+The compiler should not have to do any additional work than compiling.
+In order to achieve this, there is first a program called a C \emph{preprocessor} which runs over the code, just removing some of the abstractions used by the programmer. 
+These abstractions are typically the \# statements. Such as \#include or \#define.
+
+When the preprocessor runs the \#include line, it opens the file being included and parses the contents of the file being included as if it has been typed out in full right there where it's being included.
+There is nothing magical or hidden about an include. It simply inserts the contents of the file being included wherever the include line is placed. It's perfectly common to have many layers of \#including. A C file includes a header file which includes another header file which includes another header etc. The preprocessor resolves all of these includes.\\
+
+The two types of include lines, whether using the double quotes or angle brackets determine where the compiler goes looking for the included file. 
+Angle brackets mean it's a system include. It goes looking in the system directories (directories supplied with GCC) for these files. 
+We would not write or modify these system files.
+Double quotes means it's a user supplied (or user written) file. These will typically be header files for the code which we ourselves write. By default, it looks only in the project directory for files \#included this way.\\
+
+Note that since included files are used to check the validity of source code, they should be makefile dependencies. If a header file changes, we want to recompile all code which uses that header file to ensure that the .c file is still using the things defined in the .h file correctly.
