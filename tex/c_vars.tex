@@ -94,27 +94,27 @@ Obviously, it must happen somewhere in RAM, as RAM is the block of memory which 
 The place is RAM which is used for the variable is determined by the storage duration or lifetime of the variable. 
 There are two storage duration classes for variables: static and automatic. These will now be explored. 
 
-\section{Automatic Variables}
-We frequently only need a variable for some a short duration, such as when some function is called so that the variable can be used for sotring intermediate data needed in the algorithm of the function.
+\section{Automatically Allocated Variables}
+We frequently only need a variable for some a short duration, such as when some function is called so that the variable can be used for storing intermediate data needed in the algorithm of the function.
 When the function completes (returns) then that variable is no longer needed.
 For this use-case, \emph{automatic} variables exist. 
 These are variables which are only have memory allocated for them when a function call happens and are automatically deallocated on return. 
 Automatic variables are those which are defined inside a function without the \texttt{static} keyword. Any variable defined inside a function is called a local variable and is only visible within that function. This is as opposed to a global variable which is visible to all functions. 
 The great advantage of automatic variables is that by only occupying memory for a short time we are able to make more efficient use of memory. 
 
-Where do automatic variables get allocated in memory? Well, they need to be somewhere that easily the dynamic allocation and deallocation of memory. This is exactly that the stack does! When you \texttt{PUSH} a value to the stack it allocates some memory. When you \texttt{POP} a value it deallocates space on the stack. As such, the stack is used for automatic variables. Where the stack is and the direction which it grows in is shown in \autoref{fig:mem_allocation}.
+Where do automatic variables get allocated in memory? Well, they need to be somewhere that easily supports the dynamic allocation and deallocation of memory. This is exactly that the stack does! When you \texttt{PUSH} a value to the stack it allocates some memory. When you \texttt{POP} a value it deallocates space on the stack. As such, the stack is used for automatic variables.
 
 When a function call happens, the first things that the function does is allocates space for all of its automatic variables\footnote{More accurately, it's actually when a block is entered into, any variables defined in that block are allocated.}. How? The stack pointer is decremented by some amount to make space on the stack for all of the variables. The compiler keeps track of which spot on the stack maps to which variable name. If any of those automatica variables have initialisation values, then the function goes and sets the memory spaces allocated to the initialised automatic variables to their initialisation values. If there is no initialisation value, then the variable takes on whatever data happened to be at the memory address which was allocated to it (ie: a random(ish) value). The functions runs this initialsiation procedure every time it is called. 
 
 When the function returns, the space is deallocated by simply putting the stack pointer back to wherever it was before the function was called. 
 
 \section{Statically Allocated Variables}
+A statically allocated is one which has a fixed spot in memory which is decided on at build time. The variable exists for the entire duration of the program and the location in memory which is allocated to that variable at compile time never changes or gets deallocated. No other variable will be allocated to that space.
 Static variables are either allocated outside of functions (ie: global variables) or are allocated inside a function with the \texttt{static} qualifier keyword. 
-A statically allocated var
-The variable's lifespan is the entire duration of the program. That is, a spot in memory is allocated to that variable at compile time and that spot never changes or gets deallocated. No other variable will be allocated to that space.
 
 At compile lime (well, technically link time), statically allocated variables get allocated memory at the \emph{start} of RAM. Statically allocated variables can be initialised to an explicit value or can have no initialisation value provided. If no initialisation values is provided, they will be default initialised to 0. Note that this memory initialision must be performed before the code which access the variables gets run. This will be discussed more later.
 
+\subsection{.data and .bss}
 Statically allocated variables are split up into two memory sections: the .data section for variables which are initialised to non-zero values and the .bss section for variables which are initialised to zero.
 Why? Well, it turns out that very often statically allocated variables are initialised to 0 as they are often used as some shared flag or counter. 
 Realising that many of these variables are initialised to 0, it makes sense to optimise for variables with the value 0.
@@ -129,7 +129,28 @@ Static variables are initialised to the value 0 unless you specify some other in
     \label{fig:mem_allocation}
 \end{figure}
 
-\subsection{Code Implementation}
+\subsection{Initialisation}
+As stated previously:
+\begin{itemize}
+  \item Statically allocated variables are expected to be initialised by the time your main C code runs
+  \item These variables have a fixed location at the start of RAM
+  \item We know how the .bss section gets initialised: store start and end address of section and zero everything in between
+\end{itemize}
+How does the initialisation procedure work for the .data section? In other words, the variables which are initialised to non-zero values.
+Naturally, the initialisation values have to be stored in flash such that they are not lost when power is switched off.
+These initialisation values must then be copied from flash to RAM when the micro resets, in the startup code, before the C code runs.
+
+How is this achieved? 
+So far in our linker scripts we have only defined \emph{one} location for sections. That location refers both to where in memory the contents of that section are placed when we load the code from the computer onto the micro and also where in memory the symbols defined in that section will be considered to be when we use those symbols at \emph{run time}. These two types of location are called the Load Memory Address (LMA) and Virtual Memory Address (VMA) respectively.
+
+In the majority of cases, having the VMA and LMA the same makes complete sense. Wherever we load sections into memory is where we expect those sections to be when we interact with them.
+This is not the case for the .data section, the section with holds statically allocated variables with non-zero initialisation values. 
+For this section, we want to load the initial values of the contents of the section into flash, but then interact with the section in RAM.
+Naturally, this implies that we will need to ourselves copy the values from the LMA of .data to the VMA such that the VMA gets initialised. This is done with logic in the startup code.
+
+We said that by default the VMA and LMA are the same. How do we make them different? There is parameter we can add to an output section definition in a linker script which will define a different LMA for that section. This is the \textbf{AT>} parameter.
+
+\section{Code Implementation}
 The following is a simple example showing where and how different storage class variables are defined.
 
 \begin{lstlisting}[language=C]
