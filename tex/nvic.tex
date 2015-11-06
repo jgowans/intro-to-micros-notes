@@ -9,7 +9,7 @@ The two main aspect of functionality which the NVIC provides in terms of interru
 In this context, masking refers to refers to blocking or preventing interrupts.
 By default all interrupts are masked out.
 That means that even if a peripheral asserts an interrupt request line, the NVIC will prevent that interrupt request from being passed on to the CPU.
-In order to enable an interrupt (or un-mask it), the bit representing that specific interrupt should be set in the NVIC\_ISER.
+In order to enable an interrupt (or unmask it), the bit representing that specific interrupt should be set in the NVIC\_ISER.
 
 By having interrupts disabled, a peripheral which has been incorrectly or erroneously configured is prevented from being able to cause unwanted interrupts. 
 

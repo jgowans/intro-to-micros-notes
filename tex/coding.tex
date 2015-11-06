@@ -14,7 +14,7 @@ Our CPU has an instruction set which is around 55 instructions big. An expanded 
 
 \section{Compiling}
 The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Assembly code must be compiled to machine code. A machine code instruction is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
-For example, assume that we wanted to ascertain the machine code representation of the instruction \texttt{ADDS R6, R0, R1}. An extact from the ARMv6-M Architecture Reference Manual is shown in \autoref{fig:adds_encoding} where Rd is the destination register and Rm and Rn are the source registers of the add. It can easily be seen that the instruction would compile to\texttt{ 0001100 001 000 110 = 0x1846}. The fixed bits at the start of the instruction are the opcode. This tells the CPU it's an ADD instruction it must do. The other three sets of three bits are the operands which specifiy the registers which the CPU must use in the ADD instruction. 
+For example, assume that we wanted to ascertain the machine code representation of the instruction \texttt{ADDS R6, R0, R1}. An extract from the ARMv6-M Architecture Reference Manual is shown in \autoref{fig:adds_encoding} where Rd is the destination register and Rm and Rn are the source registers of the add. It can easily be seen that the instruction would compile to\texttt{ 0001100 001 000 110 = 0x1846}. The fixed bits at the start of the instruction are the opcode. This tells the CPU it's an ADD instruction it must do. The other three sets of three bits are the operands which specify the registers which the CPU must use in the ADD instruction. 
 \begin{figure}
   \centering
   \includegraphics[width=0.7\textwidth]{./fig/adds_encoding.png}
@@ -30,7 +30,7 @@ Once our assembly code has been written and compiled to machine code, the comput
 \section{Executing Code}
 The PC always points to the instruction which is about to be fetched. Hence, when your micro boots up, before it has executed anything, the PC will point to the first instruction to be fetched/decoded/executed. By "point to" we mean that it holds the address of the instruction. 
 
-As each instruction in the ARM Cortex-M0 instruction set it 16 bits (aka: half a word) long, ARM have implemented a rule that all instructions must be half word alligned. In other words, the address of the instruction must be divisible by 2 bytes. Legal addresses for instructions are hence, 0x02, 0x04, 0x06, 0x08 ... etc. 
+As each instruction in the ARM Cortex-M0 instruction set it 16 bits (aka: half a word) long, ARM have implemented a rule that all instructions must be half word aligned. In other words, the address of the instruction must be divisible by 2 bytes. Legal addresses for instructions are hence, 0x02, 0x04, 0x06, 0x08 ... etc. 
 This means that the least significant bit (bit 0) of the PC register is unused in specifying the address of an instruction. 
 Hence, it has been assigned another use. Specifically, to indicate the instruction set which is being executed. 
 

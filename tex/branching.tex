@@ -8,7 +8,7 @@ Due to our instructions being 16 bits wide, it is not possible to hold the addre
 To overcome this, a technique called relative branching is employed. This means that the address of the instruction which the CPU branches to is equal to the contents of a certain register plus or minus a certain amount. Seeing as the PC is already pointing to the general area in memory where instructions live, the PC is most often use as the base address register. This means that the branch instruction causes the PC to take on a value equal to the current value of the PC plus/minus some amount. 
 
 \section{Using labels}
-We could manually calculate the difference between the addresses of instructions which we wanted to branch to/from and use that as our offset address. However, just as in the case of load/store, this would be exceptionally tedious. We can use labels to get the compiler to do the laborious work calculating offsets for us. Similar to load/store instructions, we can label an instruction and then use that label as a operand for a branch instruction. The compiler then works out the address of the instruction which has been labeled, works out the address of the instruction which is doing the branch and creates a PC relative branch instruction with the correct offset equal to the difference in addresses of the two instructions. 
+We could manually calculate the difference between the addresses of instructions which we wanted to branch to/from and use that as our offset address. However, just as in the case of load/store, this would be exceptionally tedious. We can use labels to get the compiler to do the laborious work calculating offsets for us. Similar to load/store instructions, we can label an instruction and then use that label as a operand for a branch instruction. The compiler then works out the address of the instruction which has been labelled, works out the address of the instruction which is doing the branch and creates a PC relative branch instruction with the correct offset equal to the difference in addresses of the two instructions. 
 
 For example, consider something like this:
 \begin{lstlisting}[fontadjust=true,frame=trBL]
@@ -18,4 +18,4 @@ foo: LDR R0, [R1]
  ....   @ a whole lot of other instructions
  B foo
 \end{lstlisting}
-That would work by calculating the difference between the branch instruction and the instruction labeled \texttt{foo} and then subtract that amount from the PC when the branch took place. There are slight complications around things like the three stage pipeline and data alignment optimisations but in principle that's how it works. 
+That would work by calculating the difference between the branch instruction and the instruction labelled \texttt{foo} and then subtract that amount from the PC when the branch took place. There are slight complications around things like the three stage pipeline and data alignment optimisations but in principle that's how it works. 
