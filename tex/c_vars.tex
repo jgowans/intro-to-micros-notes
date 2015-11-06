@@ -21,7 +21,7 @@ We will now proceed to explore two of the most common types.
 \subsection{Basic Types}
 Basic types specify a block of memory which is treated as a simple number. While you do get basic types which support decimals, for most of our applications, the number will only be an integer. Much like how we had word, half-word or byte data types in assembly, we have similar number types in C.
 
-C programmers frequently specify their types as either \texttt{char}, \texttt{int}, \texttt{short} or \texttt{long}. The problem with this is that the actual size of each of these types is not consistant across platforms. 
+C programmers frequently specify their types as either \texttt{char}, \texttt{int}, \texttt{short} or \texttt{long}. The problem with this is that the actual size of each of these types is not consistent across platforms. 
 For example, the size of an \texttt{int} on your computer will be either 32 bits and 64 bits depending on which operating system you're running.
 
 This ambiguity is an issue for us when working with microcontrollers. We often need to know exactly how much memory will be allocated to a variable. In order to specify the size of an int type exactly, we use the type definition \texttt{intx\_t} where \texttt{x} is either 8, 16, 32 or 64 and specifies the number of bits which must be allocated to that variable. The \texttt{\_t} indicates that it's a custom type which is defined in the \texttt{stdint.h} library. 
@@ -104,7 +104,7 @@ The great advantage of automatic variables is that by only occupying memory for 
 
 Where do automatic variables get allocated in memory? Well, they need to be somewhere that easily supports the dynamic allocation and deallocation of memory. This is exactly that the stack does! When you \texttt{PUSH} a value to the stack it allocates some memory. When you \texttt{POP} a value it deallocates space on the stack. As such, the stack is used for automatic variables.
 
-When a function call happens, the first things that the function does is allocates space for all of its automatic variables\footnote{More accurately, it's actually when a block is entered into, any variables defined in that block are allocated.}. How? The stack pointer is decremented by some amount to make space on the stack for all of the variables. The compiler keeps track of which spot on the stack maps to which variable name. If any of those automatica variables have initialisation values, then the function goes and sets the memory spaces allocated to the initialised automatic variables to their initialisation values. If there is no initialisation value, then the variable takes on whatever data happened to be at the memory address which was allocated to it (ie: a random(ish) value). The functions runs this initialsiation procedure every time it is called. 
+When a function call happens, the first things that the function does is allocates space for all of its automatic variables\footnote{More accurately, it's actually when a block is entered into, any variables defined in that block are allocated.}. How? The stack pointer is decremented by some amount to make space on the stack for all of the variables. The compiler keeps track of which spot on the stack maps to which variable name. If any of those automatic variables have initialisation values, then the function goes and sets the memory spaces allocated to the initialised automatic variables to their initialisation values. If there is no initialisation value, then the variable takes on whatever data happened to be at the memory address which was allocated to it (ie: a random(ish) value). The functions runs this initialisation procedure every time it is called. 
 
 When the function returns, the space is deallocated by simply putting the stack pointer back to wherever it was before the function was called. 
 
@@ -112,7 +112,7 @@ When the function returns, the space is deallocated by simply putting the stack 
 A statically allocated is one which has a fixed spot in memory which is decided on at build time. The variable exists for the entire duration of the program and the location in memory which is allocated to that variable at compile time never changes or gets deallocated. No other variable will be allocated to that space.
 Static variables are either allocated outside of functions (ie: global variables) or are allocated inside a function with the \texttt{static} qualifier keyword. 
 
-At compile lime (well, technically link time), statically allocated variables get allocated memory at the \emph{start} of RAM. Statically allocated variables can be initialised to an explicit value or can have no initialisation value provided. If no initialisation values is provided, they will be default initialised to 0. Note that this memory initialision must be performed before the code which access the variables gets run. This will be discussed more later.
+At compile lime (well, technically link time), statically allocated variables get allocated memory at the \emph{start} of RAM. Statically allocated variables can be initialised to an explicit value or can have no initialisation value provided. If no initialisation values is provided, they will be default initialised to 0. Note that this memory initialisation must be performed before the code which access the variables gets run. This will be discussed more later.
 
 \subsection{.data and .bss}
 Statically allocated variables are split up into two memory sections: the .data section for variables which are initialised to non-zero values and the .bss section for variables which are initialised to zero.
@@ -199,7 +199,7 @@ Note that although the square bracket operator is most useful on array types, it
 \section{Structs}
 An array is limited in that each element of the array must be of the same type. A struct seeks to overcome this by allowing you to create a custom data structure which has elements (now called `members') of different data types. Additionally, rather than accessing the members via an index as you would do for an array, you access the members via their names. 
 Our main use for structs will be in interfacing with peripherals.
-A peripheral can be modeled as a struct where each register has a name and is of a potentially different size to the other registers in the peripheral.
+A peripheral can be modelled as a struct where each register has a name and is of a potentially different size to the other registers in the peripheral.
 
 There are two defining a variable of struct type.
 The first step is to declare the struct. The second step is to define a variable of that type.
@@ -243,7 +243,7 @@ size &= \texttt{ member1 } + \texttt{ member2 } + \texttt{ member3 } + \texttt{ 
 
 That is to say, whenever a variable of type \texttt{struct myStruct} is defined, 20 bytes must be allocated for it. 
 
-Typically, the members are laid out in the order which they are specified in. Things start to become more complicated when you have alignment issues or memory optimisation requirement, but we will ignore those for our alanysis of structs. 
+Typically, the members are laid out in the order which they are specified in. Things start to become more complicated when you have alignment issues or memory optimisation requirement, but we will ignore those for our analysis of structs. 
 
 Wherever the variable \texttt{foo} happens to get allocated in memory, \texttt{member1} will have an offset of 0 and occupy 4 bytes while \texttt{member2} will have an offset of 4 and occupy 4 bytes while \texttt{member3} will have an offset of 8 and occupy 8 bytes while \texttt{member4} will have an offset of 16 and occupy 4 bytes. 
 

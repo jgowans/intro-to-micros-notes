@@ -22,7 +22,7 @@ The typical scheme used to convert a binary string into an integer is that the w
 
 For 32 bits the maximum value obtainable is when all of the bits are set. This is equal to the value $2^{32} - 1 = $ 4 294 967 295. The minimum value is when all bits are 0, resulting in a value of 0. It's important to realise that these limits are only true when we are treating the sequence of bits as an unsigned number. 
 
-What happens if we attempt to exceed these limits? An overflow occurs. If we attempt to perform a computation where the true result of the computation is outside of the limits imposed by the finite number of bits in the CPU an overflow occurs. This overflow of the unsigned limits is signaled by the CPU through setting the C flag high.
+What happens if we attempt to exceed these limits? An overflow occurs. If we attempt to perform a computation where the true result of the computation is outside of the limits imposed by the finite number of bits in the CPU an overflow occurs. This overflow of the unsigned limits is signalled by the CPU through setting the C flag high.
 
 \subsection{Signed Numbers and the V Flag}
 We've just seen that when interpreting a sequence of bits as unsigned the minimum value is 0. This is often not sufficient as we may want the capability to represent negative numbers. Enter signed numbers. Here, the weights of the msb is $-(2^{n})$ while all the other bit keep their positive weights. 

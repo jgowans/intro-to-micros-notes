@@ -36,7 +36,7 @@ void foo(void) {
 
 Seeing as the name foo becomes visible to the entire project when not defined as static, it may be helpful to prefix it with something characters to make it clear which file in the project it comes from. I find that calling my globally visible function myFile\_foo() works well. \\
 
-Exactly the same applies for global variables. As with functions, by default a variable defined in one file can be accessed by all files in the project. Again, as with functions, this can be dangerous if it's not what you expect. You should use the static keywork to make global variables only visible to the function they are defined in unless you really need them to be access from other files (not recommended).
+Exactly the same applies for global variables. As with functions, by default a variable defined in one file can be accessed by all files in the project. Again, as with functions, this can be dangerous if it's not what you expect. You should use the static keyword to make global variables only visible to the function they are defined in unless you really need them to be access from other files (not recommended).
 
 \begin{lstlisting}[language=C]
 static uint8_t var1;  // only visible in this file

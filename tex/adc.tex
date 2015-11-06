@@ -14,7 +14,7 @@ A transfer function is the mathematical relationship between the input voltage a
 Different ADCs with different architectures have different transfer functions. What is discussed here is the transfer function for the ADC used inside our STM32F051 microcontroller. 
 
 First note that because we have a finite number of possible numberical outputs of the ADC which must map to the full voltage range which the ADC operates over, each numerical output of the ADC corresponds to a \emph{range} of input voltage. 
-The number of bits determines the number of possible numerical outputs or \emph{quantization intervals} which the system has. A quantisation interval is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation intervalss where \(M\) is the number of bits of the ADC. 
+The number of bits determines the number of possible numerical outputs or \emph{quantization intervals} which the system has. A quantisation interval is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation intervals where \(M\) is the number of bits of the ADC. 
 A change of one \emph{least significant bit} of the value of the digital output corresponds to going to the next quantisation interval. 
 
 As stated, there are \(N\) quantisation intervals. An ADC will typically digitise voltages between \SI{0}{\volt} (ground) and some upper limit, \(V_{ref}\) which is often set to the supply voltage of the microcontroller. If we have a reference voltage \(V_{ref}\) volts, then each quantisation interval is \(Q = \frac{V_{ref}}{N}\) volts wide.
@@ -70,7 +70,7 @@ This ADC architecture consists of an array of capacitors, which can be selective
 Each capacitor has a binary relationship to the next one, meaning that it's half the size. 
 In other words, the first cap has a value of \(C\), the second has a value of \(\frac{C}{2}\), the third has a value of \(\frac{C}{4}\), then \(\frac{C}{8}\) etc.
 The total capacitance of the array is typically a few picofarads. 
-The ADC first goes through a \emph{sample} phase whereby it chargest all of the capacitors up to the input voltage. It then disconnects the array of capacitors from the input voltage and goes through the process of approximating the voltage by switching the configuration of the capacitors and comparing the resultant voltage to a fixed voltage using an internal \emph{comparator}. This layout is shown in \autoref{fig:adc-component-level}. 
+The ADC first goes through a \emph{sample} phase whereby it charges all of the capacitors up to the input voltage. It then disconnects the array of capacitors from the input voltage and goes through the process of approximating the voltage by switching the configuration of the capacitors and comparing the resultant voltage to a fixed voltage using an internal \emph{comparator}. This layout is shown in \autoref{fig:adc-component-level}. 
 
 \begin{figure}
 \centering
@@ -153,7 +153,7 @@ The numerical output of the ADC is made available in the ADC\_DR (data register)
 
 \subsection{Performing Conversions}
 A conversion is the name for the process when the ADC reads the voltage and \emph{converts} it into an equivalent number.
-Once the ADC has been enabled and the channel, resolution and alignment selected the ADC can start doing conversions. As mentioned earlier, the conversions take some time to complete. This is due to the nature of the architecture of the ADC. Our ADC is a successive approximation (SAR) ADC which means that it progressively narrows down the numerical representation of the voltage to the final output by using a binary search. A full understanding of how a SAR ADC works is outside the scope of this course, but for those interested there is a good wikipedia article on it: \url{https://en.wikipedia.org/wiki/Successive_approximation_ADC}. 
+Once the ADC has been enabled and the channel, resolution and alignment selected the ADC can start doing conversions. As mentioned earlier, the conversions take some time to complete. This is due to the nature of the architecture of the ADC. Our ADC is a successive approximation (SAR) ADC which means that it progressively narrows down the numerical representation of the voltage to the final output by using a binary search. A full understanding of how a SAR ADC works is outside the scope of this course, but for those interested there is a good Wikipedia article on it: \url{https://en.wikipedia.org/wiki/Successive_approximation_ADC}. 
 
 Suffice to say, from the moment that you tell the ADC to read the voltage (start a conversion) until the data is ready, there is some delay. This delay varies with ADC resolution and clock scheme, but it's typically in the order of a microsecond. This means that you cannot read the result of the conversion immediately from the ADC\_DR. Instead, you should wait until the ADC signals it has finished the conversion. This is done by waiting for the EOC flag in the ADC\_ISR to go high. The process is as follows:
 \begin{enumerate}
