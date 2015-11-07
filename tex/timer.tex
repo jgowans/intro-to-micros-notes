@@ -40,8 +40,8 @@ This is functionality provided by the RCC.
 \subsection{Control}
 The control block configures how the timer will work. This includes such aspects as:
 \begin{itemize}
-\item whether the TIMxCLK line is allowed to pass through the control block to the next blocks (counter enabled) or of the TIMxCLK line is prevented from going further (counter disables).
-\item whether the timer will generate an interrupt when an overflow even happens
+\item whether the TIMxCLK line is allowed to pass through the control block to the next blocks (counter enabled) or if the TIMxCLK line is prevented from going further (counter disabled).
+\item whether the timer will generate an interrupt when an overflow event happens
 \item whether or not registers are shadowed
 \item and many more
 \end{itemize}
@@ -51,7 +51,7 @@ There are registers which we modify in order to configure the control block. The
 \subsection{Prescaler}
 A prescaler is essentially a frequency divider. A clock line with a certain frequency enters the prescaler. The clock line exiting the prescaler has a frequency equal to the input frequency divided by some factor. 
 
-Prescalers are very common and useful in digital systems so it is worth discussing them a bit. A prescaler is essentially characterised by the range of values which it is able to divide by. Simple prescalers (such as those contained in the RCC block) are only able to divide by a select few powers of 2 (example, 1, 2, 8, 32, 128). Other prescalers (such as the one in our timer block) are able to divide by any integer in a certain range. Our timer PSC block has 16 bits worth of configurable prescaling so it can divide by anything from 0 to $2^{16} - 1$ = 65535. This prescaler which can divide by arbitrary integers is obviously more powerful than one with a very small number of values, but require more transistors to manufacture (ie: cost more). 
+Prescalers are very common and useful in digital systems so it is worth discussing them a bit. A prescaler is essentially characterised by the range of values which it is able to divide by. Simple prescalers (such as those contained in the RCC block) are only able to divide by a select few powers of 2 (example, 1, 2, 8, 32, 128). Other prescalers (such as the one in our timer block) are able to divide by any integer in a certain range. Our timer PSC block has 16 bits worth of configurable prescaling so it can divide by anything from 0 to $2^{16} - 1$ = 65535. This prescaler which can divide by arbitrary integers is obviously more powerful than one with a very small number of values, but require more transistors to manufacture (ie: costs more). 
 
 There is a slight additional complication: the value which the prescaler actually divides by is equal to the value which it has been programmed with \emph{plus 1}. The reason for this is to avoid the division-by-zero case for when the prescaler is programmed with 0. In other words, if you place the value 0 into the prescaler it will actually divide by 1 (leave the signal unchanged). 
 
@@ -76,8 +76,8 @@ In other words, until the CPU has said to the timer: "I have dealt with your int
 The CPU does not automatically inform the timer when its interrupt is being handled.
 Instead, this must be done by your code.
 To acknowledge the interrupt, your interrupt handler code must write a 0 to the UIF bit in the TIMx\_SR.
-Only once this happens with the peripheral clear its interrupt request.
-If you do not acknowledge the interrupt, the ISR will be run again immediately after it finishes ad infinitum. 
+Only once this happens will the peripheral clear its interrupt request.
+If you do not acknowledge the interrupt, the ISR will be run again immediately after it finishes \emph{ad infinitum}. 
 
 It is advised to acknowledge the interrupt as the first action of the ISR.
 

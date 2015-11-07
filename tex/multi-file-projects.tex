@@ -36,7 +36,7 @@ void foo(void) {
 
 Seeing as the name foo becomes visible to the entire project when not defined as static, it may be helpful to prefix it with something characters to make it clear which file in the project it comes from. I find that calling my globally visible function myFile\_foo() works well. \\
 
-Exactly the same applies for global variables. As with functions, by default a variable defined in one file can be accessed by all files in the project. Again, as with functions, this can be dangerous if it's not what you expect. You should use the static keyword to make global variables only visible to the function they are defined in unless you really need them to be access from other files (not recommended).
+Exactly the same applies for global variables. As with functions, by default a variable defined in one file can be accessed by all files in the project. Again, as with functions, this can be dangerous if it's not what you expect. You should use the static keyword to make global variables only visible to the function they are defined in unless you really need them to be accessible from other files (not recommended).
 
 \begin{lstlisting}[language=C]
 static uint8_t var1;  // only visible in this file
@@ -47,7 +47,7 @@ The idea of placing the name of where a symbol is defined in front of a symbol n
 
 \section{Headers and Source}
 Each source file is compiled separately to an object file with relative addressing.
-At link time, the BL instructions have their references resolved. That's basically the only change that the linker makes to the object code: resolving references to other files\footnote{Of course, the other critical thing which the linker does is to combine input sections to output sections and allocated absolute addresses, but that doesn't change the machine code}.
+At link time, the \texttt{BL} instructions have their references resolved. That's basically the only change that the linker makes to the object code: resolving references to other files\footnote{Of course, the other critical thing which the linker does is to combine input sections to output sections and allocated absolute addresses, but that doesn't change the machine code}.
 The linker does not and cannot check that the call you're making to another file is done correctly in terms of arguments and return value.
 This must be done by the compiler. How?
 Header files should be written. A header file is a collection of declarations for all of the symbols which the corresponding source file adds to the project namespace.
@@ -70,9 +70,9 @@ In order for the compiler to be able to reliably compile the C code, the code sh
 This is typically a very verbose format which a programmer may not enjoy writing.
 The compiler should not have to do any additional work than compiling.
 In order to achieve this, there is first a program called a C \emph{preprocessor} which runs over the code, just removing some of the abstractions used by the programmer. 
-These abstractions are typically the \# statements. Such as \#include or \#define.
+These abstractions are typically the \# statements. Such as \texttt{\#include} or \texttt{\#define}.
 
-When the preprocessor runs the \#include line, it opens the file being included and parses the contents of the file being included as if it has been typed out in full right there where it's being included.
+When the preprocessor runs the \texttt{\#include} line, it opens the file being included and parses the contents of the file being included as if it has been typed out in full right there where it's being included.
 There is nothing magical or hidden about an include. It simply inserts the contents of the file being included wherever the include line is placed. It's perfectly common to have many layers of \#including. A C file includes a header file which includes another header file which includes another header etc. The preprocessor resolves all of these includes.\\
 
 The two types of include lines, whether using the double quotes or angle brackets determine where the compiler goes looking for the included file. 

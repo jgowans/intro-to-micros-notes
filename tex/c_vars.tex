@@ -45,7 +45,7 @@ int32_t bar;
 \subsection{Pointer Types}
 We often want to deal with the memory addresses of variables or access specific addresses (such as in the case of interfacing with peripherals). For this, we can use pointer types. A pointer holds the address of some data. In other words, it point to some data.
 The amount of data which is pointed to by the pointer is specified by the type. This means we need to specify two things when defining pointer types: we need to specify that the variable is a pointer type and we need to specify how much data is being pointed to.
-We specify that it is a pointer using the asterisk. It is good practice to put the asterisk next to the variable name rather than next to the type.
+We specify that it is a pointer by using the asterisk symbol. It is good practice to put the asterisk next to the variable name rather than next to the type.
 For example, a pointer to 1 byte of data would be defined as follows\footnote{We specify the type again in brackets to do an explicit type cast. This is just to prevent a compiler warning by telling the compiler that we are intentionally (rather than accidentally) assigning a number to a pointer. Without the typecast, we would be assigning a basic type to a pointer type which would generate a warning.}.
 
 \begin{lstlisting}[language=C]
@@ -53,7 +53,7 @@ int8_t *foo = (int8_t *)0x08001234;
 \end{lstlisting}
 
 Here, we are saying that the memory allocated to \texttt{foo} should point to the byte of data located at address.
-Our address space runs from 0x0000 0000 to 0xFFFF FFFF which means that we need 4 bytes to store an address. Hence, no matter what the size of the data being pointed to is, a pointer type variable will always occupy 4 bytes in memory\footnote{This is architecture dependant though. A system which had a smaller or larger address space would require a different amount of data to be allocated for pointers.}.
+Our address space runs from 0x0000 0000 to 0xFFFF FFFF which means that we need 4 bytes to store an address. Hence, no matter what the size of the data being pointed to is, a pointer type variable will always occupy 4 bytes in memory\footnote{This is architecture dependant though. A system which has a smaller or larger address space would require a different amount of data to be allocated for pointers.}.
 
 Once we have a variable of type pointer, we are able to access the data being pointed to by the pointer with the dereference operator which is also an asterisk! This means that the asterisk has two possible meanings depending on context. If it's used during a variable declaration, it means the variable is of pointer type. If it is used on an existing variable of pointer type is means that we are accessing the data pointed to by the pointer, rather than accessing the pointer itself.
 
@@ -112,7 +112,7 @@ When the function returns, the space is deallocated by simply putting the stack 
 A statically allocated is one which has a fixed spot in memory which is decided on at build time. The variable exists for the entire duration of the program and the location in memory which is allocated to that variable at compile time never changes or gets deallocated. No other variable will be allocated to that space.
 Static variables are either allocated outside of functions (ie: global variables) or are allocated inside a function with the \texttt{static} qualifier keyword. 
 
-At compile lime (well, technically link time), statically allocated variables get allocated memory at the \emph{start} of RAM. Statically allocated variables can be initialised to an explicit value or can have no initialisation value provided. If no initialisation values is provided, they will be default initialised to 0. Note that this memory initialisation must be performed before the code which access the variables gets run. This will be discussed more later.
+At compile time (well, technically link time), statically allocated variables get allocated memory at the \emph{start} of RAM. Statically allocated variables can be initialised to an explicit value or can have no initialisation value provided. If no initialisation values is provided, they will be default initialised to 0. Note that this memory initialisation must be performed before the code which accesses the variables gets run. This will be discussed more later.
 
 \subsection{.data and .bss}
 Statically allocated variables are split up into two memory sections: the .data section for variables which are initialised to non-zero values and the .bss section for variables which are initialised to zero.
@@ -166,7 +166,7 @@ void someFunction(void) {
 An array is a group of 1\footnote{As per C99 you can have zero-length array or flexible length arrays.} or more elements, each being of the same data type.
 The array occupies an amount of memory equal to the sum of the memory required for each element. An array should be defined in one of two different ways:
 \begin{enumerate}
-    \item Specifying the value for each element as an initialiser. In this case you do not need to specify the size of the array as it will be calculated by the compiler by counting the number if element values supplied.
+    \item Specifying the value for each element as an initialiser. In this case you do not need to specify the size of the array as it will be calculated by the compiler by counting the number of element values supplied.
     \item By specifying the size of the array and no initial values. Here the memory is allocated but no values is set for each element. If the array is a static variable, each element will be initialised to 0 by the startup code. If the array is an automatic variable each element will just be garbage by default. 
 \end{enumerate}
 
@@ -174,7 +174,7 @@ An example of both of these ways is demonstrated below.
 
 
 \begin{lstlisting}[language=C]
-// The compiler allocates 5 bytes sets each to the specified value
+// The compiler allocates 5 bytes, each set to the specified value
 int8_t foo[] = {0xAA, 0x42, 0x69, 0x55, 0xF0};
 
 // The compiler allocates 15 words and leaves values as default
@@ -186,7 +186,7 @@ It is said that the variable name of an array type \emph{decays} to a pointer ty
 This means that you cannot write to the variable name, as it makes no sense to modify the address of element 0 after it has already been defined. 
 Should you wish to access the element, you should first \emph{dereference} the variable which will give you access to the data. 
 Should you wish to access element 1, you should add 1 to the address of element 0 and then deference that. 
-This will always work independent of the size of the elements of the array due to arithmetic operations applied to pointer types working in multiplies of the size of the data being pointed to by the pointer, as discussed earlier.
+This will always work independent of the size of the elements of the array due to arithmetic operations applied to pointer types working in multiples of the size of the data being pointed to by the pointer, as discussed earlier.
 
 There is a nice shorthand for accessing elements of arrays; the square bracket operator. This operator just dereferences the pointer plus some number. The following two are equivalent. 
 \begin{lstlisting}[language=C]
@@ -197,7 +197,7 @@ myArray[10];
 Note that although the square bracket operator is most useful on array types, it is valid on any pointer types. 
 
 \section{Structs}
-An array is limited in that each element of the array must be of the same type. A struct seeks to overcome this by allowing you to create a custom data structure which has elements (now called `members') of different data types. Additionally, rather than accessing the members via an index as you would do for an array, you access the members via their names. 
+An array is limited in that each element of the array must be of the same type. A struct seeks to overcome this by allowing you to create a custom data structure which has elements (now called "members") of different data types. Additionally, rather than accessing the members via an index as you would do for an array, you access the members via their names. 
 Our main use for structs will be in interfacing with peripherals.
 A peripheral can be modelled as a struct where each register has a name and is of a potentially different size to the other registers in the peripheral.
 
@@ -220,7 +220,7 @@ Once that code is in place, you can then define variables of type \texttt{struct
 struct myStruct foo;
 \end{lstlisting}
 
-The variable \texttt{foo} is now of a variable of type \texttt{struct myStruct}. What can you do with this variable? Well, just like how you can access the elements of an array, you can access the members of a struct. This is done via the member access operator, the full stop / dot. 
+The variable \texttt{foo} is now of a variable of type \texttt{struct myStruct}. What can you do with this variable? Well, just like how you can access the elements of an array, you can access the members of a struct. This is done via the member access operator, the full stop/dot. 
 
 \begin{lstlisting}[language=C]
 foo.member1 = 0xAABBCCDD;
