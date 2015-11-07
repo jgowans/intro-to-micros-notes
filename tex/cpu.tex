@@ -4,17 +4,18 @@ At the core of a microcontroller is the CPU. Our CPU is called the Cortex-M0 and
 The ARM Cortex-M0 CPU is certainly the most interesting block inside the STM32F051C6. This is where all processing happens, hence this is where the instructions which we write will run. It is therefore essential that we have an intricate understanding of the CPU so that we may write useful code for it. This chapter seeks to explore the CPU in some detail.
 
 \section{Programmer's Model of the CPU}
+\label{sec:programmer's_model_of_the_CPU}
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.9\textwidth]{./fig/programmers_model_v1.pdf}
-  \caption{A view of the internals of the STM32F051 with the ARM Cortex-M0 expanded}
+  \caption{A view of the internals of the STM32F051 with the ARM Cortex-M0 expanded.}
   \label{fig:prog_mod_v1}
 \end{figure}
-A programmer's model is a representation of the inner workings of the CPU with sufficient detail to allows us to develop code for the CPU, but no unnecessary detail. The expanded view of the CPU which will now be discussed can be seen in \autoref{fig:prog_mod_v1}. This simple model of a CPU is a set of CPU registers, an Arithmetic and Logic Unit (ALU) and a control Unit. The CPU registers are blocks of storage each 32 bits wide which the CPU has the ability to operate on. Only data which is inside a CPU register can be operated on by the CPU. The ARM Cortex-M0 has 16 such registers. 
+A programmer's model is a representation of the inner workings of the CPU with sufficient detail to allows us to develop code for the CPU, but no unnecessary detail. The expanded view of the CPU which will now be discussed can be seen in \autoref{fig:prog_mod_v1}. This simple model of a CPU is a set of CPU registers, an Arithmetic and Logic Unit (ALU) and a Control Unit. The CPU registers are blocks of storage each 32 bits wide which the CPU has the ability to operate on. Only data which is inside a CPU register can be operated on by the CPU. The ARM Cortex-M0 has 16 such registers which are numbered R0 to R15. 
 
 The ALU is that which performs the operations on the registers. It can take data from registers as inputs, do very basic processing and store the result in CPU registers. 
 
-The control unit manages execution by telling the ALU what to do. Together, the registers, ALU and control are able to execute instructions. 
+The Control Unit manages execution by telling the ALU what to do. Together, the registers, ALU and control are able to execute instructions. 
 Examples of instructions which the CPU is able to execute:
 \begin{enumerate}
   \item adding the contents of R0 and R1 and storing the result in R6
@@ -53,9 +54,9 @@ As an example, assume we have three instructions which we want to execute, instr
   \includegraphics[page=1, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./fig/pipeline.pdf}
   \includegraphics[page=2, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./fig/pipeline.pdf}
   \includegraphics[page=3, clip=true, trim=1mm 40mm 1mm 57mm, width=0.8\textwidth]{./fig/pipeline.pdf}
-\caption{Showing three instructions being run through a three stage pipeline, as well as where the PC is pointing every cycle}
+\caption{Showing three instructions being run through a three stage pipeline, as well as where the PC is pointing every cycle.}
 \label{fig:pipeline}
 \end{figure}
 
 \section{Reset Vector}
-When the CPU starts up, where should it begin execution from? It could have a fixed location, perhaps the first address in flash which is defined to hold the first instruction to execute. This however would limit out flexibility. Very often we want other data to come before out instructions. Exactly what this other data is will be explored in more detail later, but suffice to say that it's useful to have flexibility to define where the first instruction is located. This is done with the reset vector. When it boots up, the CPU fetches number which it must initialise the PC to from the address 0x0800 0004. This address is known as the reset vector as it points to the first instruction to be executed after reset.
+When the CPU starts up, where should it begin execution from? It could have a fixed location, perhaps the first address in flash which is defined to hold the first instruction to execute. This however would limit out flexibility. Very often we want other data to come before out instructions. Exactly what this other data is will be explored in more detail later, but suffice to say that it's useful to have flexibility to define where the first instruction is located. This is done with the reset vector. When it boots up, the CPU fetches a number which it must initialise the PC to from the address 0x0800 0004. This address is known as the reset vector as it points to the first instruction to be executed after reset.

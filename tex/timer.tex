@@ -1,5 +1,5 @@
 \chapter{Timers}
-Before explaining how timers work, let's try to understand why we would need them.
+Before explaining how timers work, let's try to understand why we would need them.\\
 
 Up until now, when we have wanted events to occur some human-scale time (hundreds or thousands of milliseconds) apart, we have been using long but finite loops to create delays. 
 The delay loops have been incrementing or decrementing a number in a CPU register many thousands of times; a task which takes an appreciable amount of time to complete. This can be considered a waste of CPU resources. Instead of getting the CPU to do some useful work (controlling a system or monitoring some external signals) it is simply modifying an internal register for a long time. 

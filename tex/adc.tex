@@ -1,7 +1,7 @@
 \chapter{Analogue to Digital Converter}
 
 Before discussing an Analogue to Digital Converter (ADC), first consider the simple GPIO pin configured as an input. 
-The pin `reads' the voltage applied to it and produces a binary number (a 1 or a 0) which indicates whether the applied voltage is a high or low. Technically this GPIO pin is an analogue to digital converter: it takes an analogue voltage and produces a binary number representing that voltage. 
+The pin "reads" the voltage applied to it and produces a binary number (a 1 or a 0) which indicates whether the applied voltage is a high or low. Technically this GPIO pin is an analogue to digital converter: it takes an analogue voltage and produces a binary number representing that voltage. 
 However, having only 1 bit to represent the voltage applied to the pin means that we get a very poor approximation of the voltage. 
 For example, we cannot tell the different between 2 V and 3 V being applied to the pin: both of those voltages are considered a logic 1. 
 For this reason we do not typically refer to a GPIO pin as an ADC, rather we refer to it as a digital input.
@@ -13,11 +13,11 @@ While a GPIO pin is able to digitise the voltage to only 1 bit, the ADC can typi
 A transfer function is the mathematical relationship between the input voltage and the output value of the ADC.
 Different ADCs with different architectures have different transfer functions. What is discussed here is the transfer function for the ADC used inside our STM32F051 microcontroller. 
 
-First note that because we have a finite number of possible numberical outputs of the ADC which must map to the full voltage range which the ADC operates over, each numerical output of the ADC corresponds to a \emph{range} of input voltage. 
+First note that because we have a finite number of possible numberical outputs of the ADC which must map to the full voltage range which the ADC operates over, each numerical output of the ADC corresponds to a \emph{range} of input voltages. 
 The number of bits determines the number of possible numerical outputs or \emph{quantization intervals} which the system has. A quantisation interval is an input voltage range which produces a certain digital output. The supply rail is divided up into \(N = 2^M\) quantisation intervals where \(M\) is the number of bits of the ADC. 
 A change of one \emph{least significant bit} of the value of the digital output corresponds to going to the next quantisation interval. 
 
-As stated, there are \(N\) quantisation intervals. An ADC will typically digitise voltages between \SI{0}{\volt} (ground) and some upper limit, \(V_{ref}\) which is often set to the supply voltage of the microcontroller. If we have a reference voltage \(V_{ref}\) volts, then each quantisation interval is \(Q = \frac{V_{ref}}{N}\) volts wide.
+As stated, there are \(N\) quantisation intervals. An ADC will typically digitise voltages between \SI{0}{\volt} (ground), and some upper limit \(V_{ref}\), which is often set to the supply voltage of the microcontroller. If we have a reference voltage \(V_{ref}\) volts, then each quantisation interval is \(Q = \frac{V_{ref}}{N}\) volts wide.
 We realise that each digital output corresponds to a \emph{range} of input voltages. How big is the range? Seeing as the ADC can only work in multiple of a lsb, the range must be one lsb wide. 
 The ADC in the STM32 has been structured such that the midpoint of the range which produced a digital output of \(k\) is equal to \(V_{k} = k \times \frac{V_{ref}}{N}\). 
 Hence, the range of input voltage corresponding to a digital output of \(k\) is: \(kQ - 0.5Q\) to \(kQ + 0.5Q\). Intuitively, this is \(k\) lsbs with half a lsb uncertainty each way. 
@@ -28,14 +28,14 @@ The transfer function discussed above is the one implemented by our STM32.
 \begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{adc_transfer.png}
-  \caption{Example graph of ADC transfer function for 3-bit ADC}
+  \caption{Example graph of ADC transfer function for 3-bit ADC.}
   \label{fig:adc-transfer-graph}
 \end{figure}
 
 
 \section{Example Calculation}
-For an example of this, let's consider the case of a 3 bit ADC running off of a Vref of \SI{4.0}{\volt}. One lsb has a value of \(V_{lsb} = \frac{\SI{4}{\volt}}{2^3} = \SI{0.5}{\volt}\).
-Half a lsb, or the uncertainy around each value is hence \(\frac{\SI{0.5}{\volt}}{2} = \SI{0.25}{\volt}\)
+For an example of this, let's consider the case of a 3 bit ADC running off of a \(V_{ref}\) of \SI{4.0}{\volt}. One lsb has a value of \(V_{lsb} = \frac{\SI{4}{\volt}}{2^3} = \SI{0.5}{\volt}\).
+Half a lsb, or the uncertainty around each value is hence \(\frac{\SI{0.5}{\volt}}{2} = \SI{0.25}{\volt}\)
 Hence, the input voltage range for a digital output of \(k\) is equal to \((k \times \SI{0.5}{\volt}) \pm \SI{0.25}{\volt}\).
 All input/output values for this example ADC are shown in \autoref{tab:3-bit-adc}. \\
 
@@ -53,20 +53,20 @@ All input/output values for this example ADC are shown in \autoref{tab:3-bit-adc
       110 & 3.0 & 2.75 to 3.25 \\
       111 & 3.5 & 3.25 and above\\
 \end{tabu}
-\caption{Numerical output vs applied voltage band for a 3 bit ADC running off of \SI{4}{\volt}}
+\caption{Numerical output vs applied voltage band for a 3 bit ADC running off of \SI{4}{\volt}.}
 \label{tab:3-bit-adc}
 \end{table}
 
 We see, therefore, that in general to calculate the corresponding input voltage range for a certain digital output:
-\begin{itemize}
+\begin{enumerate}
   \item Calculate the size of each quantisation interval (aka: value of one lsb): \(Q = \frac{V_{ref}}{2^M}\) volts.
   \item The output \(k\) means we go up \(k\) quantisation intervals to the midpoint: \(kQ\)
   \item Add the uncertainty each way, half a lsb: \(\pm 0.5Q\)
-\end{itemize}
+\end{enumerate}
 
 \section{ADC errors and calibration}
 Inside the STM32F051 is a Switched Capacitor Successive Approximation Register Analogue to Digital Converter (SC SAR ADC). 
-This ADC architecture consists of an array of capacitors, which can be selectively switched to GND or Vref. 
+This ADC architecture consists of an array of capacitors, which can be selectively switched to GND or \(V_{ref}\). 
 Each capacitor has a binary relationship to the next one, meaning that it's half the size. 
 In other words, the first cap has a value of \(C\), the second has a value of \(\frac{C}{2}\), the third has a value of \(\frac{C}{4}\), then \(\frac{C}{8}\) etc.
 The total capacitance of the array is typically a few picofarads. 
@@ -76,7 +76,7 @@ The ADC first goes through a \emph{sample} phase whereby it charges all of the c
 \centering
 \includegraphics[page=5, clip=true, trim=75 360 75 280, width=\textwidth]{CD00211314.pdf}
 % left, bottom, right, top
-\caption{Internal workings of a SC SAR ADC. Note the analogue components: capacitors and comparator}
+\caption{Internal workings of a SC SAR ADC. Note the analogue components: capacitors and comparator.}
 \label{fig:adc-component-level}
 \end{figure}
 
@@ -116,14 +116,14 @@ After setting the ADEN bit, the ADC will take some time to power on. Once the AD
 
 \subsection{Channel}
 The ADC is not limited to just reading from one fixed pin; it can select which pin to use from a number of possible sources, or \emph{channels}.
-The ADC\_CHSELR register controls which channel is selected. On our device there are 10 different pins which can be selected for use as an ADC channel. In order to see which ADC channel a pin corresponds to, consult Table 13 of the Datasheet. This table shows which ADC channel a pin is connected to in the `Additional functions' column. For example, PB1 is connected to ADC channel 9.
+The ADC\_CHSELR register controls which channel is selected. On our device there are 10 different pins which can be selected for use as an ADC channel. In order to see which ADC channel a pin corresponds to, consult Table 13 of the Datasheet. This table shows which ADC channel a pin is connected to in the "Additional functions" column. For example, PB1 is connected to ADC channel 9.
 
-Be careful not to set multiple channels in the ADC\_CHSELR simultaneously. If you do this, the ADC will scan through each of the channels. Unless you know what you're doing, this is probably not what you want and it will confuse you.
+\emph{Be careful not to set multiple channels in the ADC\_CHSELR simultaneously. If you do this, the ADC will scan through each of the channels. Unless you know what you're doing, this is probably not what you want and it will confuse you.}
 
 \subsection{Pin Mode}
 We know that by default a pin will operate in \emph{Input} mode. That is, it will digitise the applied voltage to a 1 bit number which will set/clear a bit in the GPIOx\_IDR. The component which does the digitising is the Schmitt trigger. 
 
-This is now how we want the pin to function when using an ADC. When we want to use a pin as an ADC channel, we want the raw analogue voltage to be passed on to the ADC for digitising. In order to achieve this, the pin should be put into \emph{Analogue} mode. Here, the Schmitt trigger is disabled and the pin is made accessible to analogue peripherals (such as the ADC). The structure of a pin in analogue mode can be seen in \autoref{fig:pin_analogue_mode}. Note the top of the diagram where it can clearly be seen that the raw analogue voltage is sent off to the ADC peripheral.
+This is not how we want the pin to function when using an ADC. When we want to use a pin as an ADC channel, we want the raw analogue voltage to be passed on to the ADC for digitising. In order to achieve this, the pin should be put into \emph{Analogue} mode. Here, the Schmitt trigger is disabled and the pin is made accessible to analogue peripherals (such as the ADC). The structure of a pin in analogue mode can be seen in \autoref{fig:pin_analogue_mode}. Note the top of the diagram where it can clearly be seen that the raw analogue voltage is sent off to the ADC peripheral.
 
 \begin{figure}
 \centering
@@ -141,7 +141,7 @@ In order to set a pin to operate in analogue mode, both both bits which control 
 \subsection{Resolution and Alignment}
 Our ADC can operate in one of 4 different resolutions: 6-bit, 8-bit, 10-bit or 12-bit. The resolutions which it will use is set by the RES bits in the ADC\_CFGR1. A higher resolution allows a better approximation of the real applied voltage, while a lower resolution will allow the ADC to perform the conversions faster as it has less work to do.
 
-The numerical output of the ADC is made available in the ADC\_DR (data register). This register is 16 bits wide. So, how will the result of the ADC conversion (which is less than 16 bits) be presented in the ADC\_DR? This is a question of data alignment and is controlled by the ALIGN bit in the ADC\_CFGR1. The structure of the ADC\_DR for all combinations of resolution and alignment is shown in \autoref{fig:adc_res_align}. Which one should you use? Depends entirely on your application. 
+The numerical output of the ADC is made available in the ADC\_DR (data register). This register is 16 bits wide. So, how will the result of the ADC conversion (which is less than 16 bits) be presented in the ADC\_DR? This is a question of data alignment and is controlled by the ALIGN bit in the ADC\_CFGR1. The structure of the ADC\_DR for all combinations of resolution and alignment is shown in \autoref{fig:adc_res_align}. Which one should you use? This depends entirely on your application. 
 
 \begin{figure}
 \centering
@@ -161,7 +161,7 @@ Suffice to say, from the moment that you tell the ADC to read the voltage (start
 \item Wait for the EOC bit in the ADC\_ISR to go high
 \item Read the result from the ADC\_DR. The result is in a format as defined by the resolution and alignment. 
 \end{enumerate}
-Note that by reading from the ADC\_DR the EOC flag is automatically cleared. If you do not read the contents of the ADC\_DR the EOC flag will not be cleared which may cause issues the next time to start a conversion. 
+Note that by reading from the ADC\_DR the EOC flag is automatically cleared. If you do not read the contents of the ADC\_DR the EOC flag will not be cleared which may cause issues the next time you try to start a conversion. 
 
 
 

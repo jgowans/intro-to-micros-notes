@@ -2,7 +2,7 @@
 
 \section{Assembly}
 
-In order to get the CPU to do some of what we've discussed above, it needs to have code loaded onto it to run. We write code in a language called assembly. Assembly is a human-readable language. A program is made up of a sequence of instruction; each instruction gets executed by the CPU. It's quite easy to see what each instruction does by reading the program.  The complete instruction set is located in the Programming Manual. You must be familiar with this document! Examples of instruction which carry out the tasks listed above are:
+In order to get the CPU to do some of what we've discussed above, it needs to have code loaded onto it to run. We write code in a language called assembly. Assembly is a human-readable language. A program is made up of a sequence of instructions; each instruction gets executed by the CPU. It's quite easy to see what each instruction does by reading the program.  The complete instruction set is located in the Programming Manual. You must be familiar with this document! Examples of instruction which carry out the tasks listed in \autoref{sec:programmer's_model_of_the_CPU} are:
 \begin{enumerate}
   \item \texttt{ADDS R6, R0, R1}
   \item \texttt{MOV R0, R3}
@@ -10,15 +10,15 @@ In order to get the CPU to do some of what we've discussed above, it needs to ha
   \item \texttt{MOVS R5, \#42}
 \end{enumerate}
 
-Our CPU has an instruction set which is around 55 instructions big. An expanded discussion of instruction sets can be found in \autoref{sec:instruction_sets}
+Our CPU has an instruction set which is around 55 instructions big. An expanded discussion of instruction sets can be found in \autoref{sec:instruction_sets}.
 
 \section{Compiling}
 The CPU does not have the ability to understand our nice English words like \textit{ADD} or \textit{MOV}. The CPU only has the ability to understand binary data. Assembly code must be compiled to machine code. A machine code instruction is a binary string, 16 bits long consisting of the operation code (opcode) and the data which it must operate on (operand).
-For example, assume that we wanted to ascertain the machine code representation of the instruction \texttt{ADDS R6, R0, R1}. An extract from the ARMv6-M Architecture Reference Manual is shown in \autoref{fig:adds_encoding} where Rd is the destination register and Rm and Rn are the source registers of the add. It can easily be seen that the instruction would compile to\texttt{ 0001100 001 000 110 = 0x1846}. The fixed bits at the start of the instruction are the opcode. This tells the CPU it's an ADD instruction it must do. The other three sets of three bits are the operands which specify the registers which the CPU must use in the ADD instruction. 
+For example, assume that we wanted to ascertain the machine code representation of the instruction \texttt{ADDS R6, R0, R1}. An extract from the ARMv6-M Architecture Reference Manual is shown in \autoref{fig:adds_encoding} where \texttt{Rd} is the destination register and \texttt{Rm} and \texttt{Rn} are the source registers of the \texttt{ADD}. It can easily be seen that the instruction would compile to\texttt{ 0001100 001 000 110 = 0x1846}. The fixed bits at the start of the instruction are the opcode. This tells the CPU it's an \texttt{ADD} instruction it must do. The other three sets of three bits are the operands which specify the registers which the CPU must use in the \texttt{ADD} instruction. 
 \begin{figure}
   \centering
   \includegraphics[width=0.7\textwidth]{./fig/adds_encoding.png}
-  \caption{An encoding of the ADDS instruction}
+  \caption{An encoding of the ADDS instruction.}
   \label{fig:adds_encoding}
 \end{figure}
 The opcodes for each instruction are detailed in the ARMv6-M Architecture Reference Manual.
@@ -36,12 +36,12 @@ Hence, it has been assigned another use. Specifically, to indicate the instructi
 
 \section{Some Useful Instructions}
 \subsection{MOV}
-MOV or the variant MOVS is useful for moving data within the CPU. The instruction can either be used to move (a better word would be 'copy') the contents of one register to another register or some immediate data encoded in the instruction into a register. There are hence two ways which the instrucion can be used. Either MOVS Rd, \#imm which will move the 8-bit number specified by \#imm into the destination register Rd. The 8-bit number will be moved into the LSB of the register and the other bits will be set to 0. Example: MOVS R0, \#0xAA. Or, the other way is between two registers. MOVS Rd, Rm will copy the contents of Rm into Rd. It will copy all 32 bits.
+\texttt{MOV} or the variant \texttt{MOVS} is useful for moving data within the CPU. The instruction can either be used to move (a better word would be 'copy') the contents of one register to another register or some immediate data encoded in the instruction into a register. There are hence two ways which the instrucion can be used. Either \texttt{MOVS Rd, \#imm} which will move the 8-bit number specified by \texttt{\#imm} into the destination register \texttt{Rd}. The 8-bit number will be moved into the lsb of the register and the other bits will be set to 0. Example: \texttt{MOVS R0, \#0xAA}. Or, the other way is between two registers. \texttt{MOVS Rd, Rm} will copy the contents of \texttt{Rm} into \texttt{Rd}. It will copy all 32 bits.
 
 \subsection{LDR, STR}
-LDR and STR copy data from memory into the CPU and from the CPU into memory respectively. Loading and storing are such key aspects of our CPU that they are discussed in their own chapter: \autoref{chap:load_store}.
+\texttt{LDR} and \texttt{STR} copy data from memory into the CPU and from the CPU into memory respectively. Loading and storing are such key aspects of our CPU that they are discussed in their own chapter: \autoref{chap:load_store}.
 
 \subsection{ANDS, ORRS, EORS}
-These are all bitwise operations which operate on the contents of registers. ANDS is a bitwise AND, ORRS is a bitwise OR, EORS and a bitwise exclusive OR. These three instructions all have the same format, for example: ANDS Rd, Rn, Rm where Rn and Rm are the two source registers which get anded together and Rd is the destination register where the result is stored. Note that Rd must be the same register as Rn. Hence, this instruction will always overwrite one of its source registers with the result.
+These are all bitwise operations which operate on the contents of registers. \texttt{ANDS} is a bitwise \texttt{AND}, \texttt{ORRS} is a bitwise \texttt{OR}, \texttt{EORS} is a bitwise exclusive \texttt{OR}. These three instructions all have the same format, for example: \texttt{ANDS Rd, Rn, Rm} where \texttt{Rn} and \texttt{Rm} are the two source registers which get anded together and \texttt{Rd} is the destination register where the result is stored. Note that \texttt{Rd} must be the same register as \texttt{Rn}. Hence, this instruction will always overwrite one of its source registers with the result.
 
 TODO: expand this section or move this content into more appropriate sections.

@@ -164,7 +164,7 @@ void someFunction(void) {
 
 \section{Arrays}
 An array is a group of 1\footnote{As per C99 you can have zero-length array or flexible length arrays.} or more elements, each being of the same data type.
-The array occupies an amount of memory equal to the sum of the memory required for each element. An array should be define in one of two different ways:
+The array occupies an amount of memory equal to the sum of the memory required for each element. An array should be defined in one of two different ways:
 \begin{enumerate}
     \item Specifying the value for each element as an initialiser. In this case you do not need to specify the size of the array as it will be calculated by the compiler by counting the number if element values supplied.
     \item By specifying the size of the array and no initial values. Here the memory is allocated but no values is set for each element. If the array is a static variable, each element will be initialised to 0 by the startup code. If the array is an automatic variable each element will just be garbage by default. 
