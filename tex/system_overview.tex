@@ -1,14 +1,7 @@
 \chapter{System Overview}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{./fig/programmers_model_v0.pdf}
-  \caption{The most simplified view of the internals of the STM32F051}
-  \label{fig:prog_mod_v0}
-\end{figure}
-
 \section{What is a Microcontroller?}
-The microcontroller can be understood by comparing it to something you are already very familiar with: the computer. Both a microcontroller and a computer can be modeled as a black box which takes in data and instructions, performs processing, and provides output.
+The microcontroller can be understood by comparing it to something you are already very familiar with: the computer. Both a microcontroller and a computer can be modelled as a black box which takes in data and instructions, performs processing, and provides output.
 In order to do this, a micro has some of the same internals as a computer, shown graphically in \autoref{fig:prog_mod_v0} and discussed now:
 \begin{itemize}
   \item CPU: The section of the microcontroller which does the processing. It executes instructions which allows it to do arithmetic and logic operations, amongst other forms of operations.
@@ -30,13 +23,20 @@ A computer is typically defined as a multi-purpose, flexible unit able to do com
 \label{table:specs_comp}
 \end{table}
 
-The terms micro\textit{controller} and micro\textit{processor} are different and should not be used interchangeably. A micro\textit{processor} is a chip which is able to perform computation, but requires external memory and peripherals to function. A micro\textit{controller} has the memory and peripherals built into it, allowing it to be fully independent. Furthermore, the interface in and out of a microprocessor is mainly just an address and data bus. In a microcontroller, these data and address busses are internal to the device. The interfaces in and out of a microcontroller are configurable to be a wide variety of communication standards. This self-contained nature and ability to deal with a wide variety of signals allows a microcontroller to (as the name suggest) be embedded in a larger system and perform control and monitoring functions.\\
+The terms micro\textit{controller} and micro\textit{processor} are different and should not be used interchangeably. A micro\textit{processor} is a chip which is able to perform computation, but requires external memory and peripherals to function. A micro\textit{controller} has the memory and peripherals built into it, allowing it to be fully independent. Furthermore, the interface in and out of a microprocessor is mainly just an address and data bus. In a microcontroller, these data and address busses are internal to the device. The interfaces in and out of a microcontroller are configurable to be a wide variety of communication standards. This self-contained nature and ability to deal with a wide variety of signals allows a microcontroller to (as the name suggests) be embedded in a larger system and perform control and monitoring functions.\\
 
 The micro we will be using is the STM32F051C6. It is manufactured by ST Microelectronics, but has an ARM Cortex-M0 CPU. ARM designed the CPU (specified how the transistors connect together). ST then takes this CPU design, adds it to their design for all of the other bits of the micro (flash, RAM, ports and much much more) and then produces the chip.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{./fig/programmers_model_v0.pdf}
+	\caption{The most simplified view of the internals of the STM32F051}
+	\label{fig:prog_mod_v0}
+\end{figure}
+
 \subsection{Development board block diagram}
 The development board consists of modules which connect to the microcontroller. Most of these modules are optional in that they are not required for the microcontroller to run. We will develop code later in the course to interface with some of these modules. Those which are not optional are the voltage regulator and the debugger.
-Following is a brief discussion of the purpose of each of the dev board modules (peripherals). You are not expected to know what many of these terms mean yet; this exists for you to refer back to later when you do encounter these perihperals. 
+The following is a brief discussion of the purpose of each of the dev board modules (peripherals). You are not expected to know what many of these terms mean yet; this exists for you to refer to later when you do encounter these peripherals. 
 
 \begin{figure}
   \centering
@@ -50,8 +50,8 @@ Following is a brief discussion of the purpose of each of the dev board modules 
   \item STM32F051C6: This is the target microcontroller. It is connected to everything else on the board and it is where the code which we develop will execute. 
   \item Debugger: this is essentially another microcontroller running special code on it which allows it to be able to pass information between a computer and the target microcontroller. The interface to the computer is a USB connection, and the interface to the target is a protocol called Serial Wire Debug (SWD) which is similar to JTAG. The specific type of debugger which we have is a ST-Link.
   \item Regulator: A MCP1702-33/T0 chip. This converts the 5 V provided by the USB port into 3.3 V suitable for running most of the circuitry on the board. 
-  \item LEDs: One byte of LEDs, active high connected to the lower byte of port B.
-  \item Push buttons: Active low push buttons connected to the lower nibble of port A.
+  \item LEDs: Eight LEDs used as a binary representation of one byte of data, active high connected to the lower byte of port B.
+  \item Push buttons: Active low push buttons connected to the lower nibble (4 bits) of port A.
   \item Pots: 2 x 10K (or there abouts) potentiometers connected to PA5 and PA6.
   \item LCD Screen: A 16x2 screen connected to the micro in 4-bit mode. Used to display text.
   \item LCD contrast pot: The output of this potentiometer connects to the contrast pin of the LCD screen, hence allowing contrast adjustment.
@@ -68,9 +68,9 @@ The full circuit schematic for the board follows.
 For now, we will forget about all of the other modules on the dev board and consider our system to be a computer talking to a debugger talking to a target micro, as shown in \autoref{fig:debugger_to_micro}. 
 This is the most basic system which must be understood to allow us to load code onto the target microcontroller.
 
-\begin{figure}[t]
+\begin{figure}[h]
   \includegraphics[width=\textwidth]{./fig/debugger_to_micro.pdf}
-  \caption{Highly simplified diagram showing how micro and computer communicate}
+  \caption{Highly simplified diagram showing how micro and computer communicate.}
   \label{fig:debugger_to_micro}
 \end{figure}
 

@@ -1,7 +1,7 @@
 \chapter{Subroutines}
 It would be very useful to have the ability to branch to a label, execute a block of code and then return back to where the branch was taken from. A block of code which is branched to and returned from in this way is called a subroutine.
 Subroutines are a very useful concept as they allow us to write a single block of code and then re-use it multiple times. 
-If we did not have subroutines we would have to duplicate code whenever we wanted to make use of the functionality provided by the code.
+If we did not have subroutines we would have to duplicate code whenever we wanted to make use of the functionality provided by that code.
 This causes unnecessary use (wasting) of flash memory.
 Furthermore, without subroutines, the job of maintaining the code would be very difficult because if you want to adjust something in that block of code then you would have to make the adjustments in multiple places in your source file - wherever the block of code exists.
 By having a subroutines the code only occupies space in memory once and alterations to it only have to happen in one place.
@@ -9,7 +9,7 @@ By having a subroutines the code only occupies space in memory once and alterati
 In order to implement this subroutine concept the CPU needs the ability to store the return address somewhere when a subroutine is branched to. 
 Subroutines are so useful that an entire CPU register is dedicated to the purpose of storing return addresses for subroutines. That is R14, otherwise known as the Link Register (LR).
 Subroutines work by storing the address of the next instruction to be executed in the LR and then branching to the label of the subroutine.
-As you'll remember, this is the same as putting the address of the instruction which you want to execute into the PC. As usual, instruction will then be executed sequentially from that point.
+As you'll remember, this is the same as putting the address of the instruction which you want to execute into the PC. As usual, instructions will then be executed sequentially from that point.
 
 In order to get the branch instruction to store the address of the next instruction in the LR, the following instruction format is used.
 \begin{lstlisting}[fontadjust=true,frame=trBL]
@@ -17,9 +17,9 @@ BL label
 
 \end{lstlisting}
 
-When you want to "return" from the subroutine back to the location in the code where the subroutine was called you need move the data in the LR into the PC. This causes the PC to go back to pointing to the instruction which follows the one that called the subroutine. 
+When you want to "return" from the subroutine to the location in the code where the subroutine was called you need move the data in the LR into the PC. This causes the PC to go back to pointing to the instruction which follows the one that called the subroutine. 
 
-In order to load the contents of an arbitrary register into the PC, the Branch Indirect (BX) instruction is used.
+In order to load the contents of an arbitrary register into the PC, the Branch Indirect (\texttt{BX}) instruction is used.
 The general format of this instruction is:
 \begin{lstlisting}[fontadjust=true,frame=trBL]
 BX Rn  @ where Rn is some register

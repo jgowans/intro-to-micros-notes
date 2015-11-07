@@ -1,12 +1,12 @@
 \chapter{Introduction to C}
 \section{Advantages}
-C is a programming language which was conceived in the early 1970's. 
+C is a programming language which was conceived in the early 1970s. 
 C is a more abstract language than assembly.
-That is to say, it hides a lot of the complexity associated with assembly, and allows the programmer two write code which is more focused on the task which must be carried out rather than the details of how it is carried out.
+That is to say, it hides a lot of the complexity associated with assembly, and allows the programmer to write code which is more focused on the task which must be carried out rather than the details of how it is carried out.
 
 This abstracted nature of C provides us with the main advantage of C over assembly: portability. 
 C is abstracted away from machine code, so we don't have to worry about instruction sets when writing our code. 
-The C compiler figures out the correct assembly instructions to carry out the operation you want to do and generating the assembly code to do it.
+The C compiler figures out the correct assembly instructions to carry out the operation you want to do and generates the assembly code to do it.
 
 There are so many different instruction sets out there. 
 Every manufacturer of microprocessors has their own instruction set. 
@@ -33,10 +33,10 @@ This is  crucial as embedded systems engineers are often working in resource con
 The balance between portability and performance is one of the main reasons why C is still one of most popular language today\footnote{As per \url{http://spectrum.ieee.org/computing/software/the-2015-top-ten-programming-languages}}, over 40 years after it was thought up. 
 
 \section{Safety}
-C and assembly are both unsafe programming languages. That is, they access to arbitrary memory addresses. This can cause catastrophic system failures if you (for example) accidentally overwrite some critical data such as the return address of a stack frame.
+C and assembly are both unsafe programming languages. That is, they allow access to arbitrary memory addresses. This can cause catastrophic system failures if you (for example) accidentally overwrite some critical data such as the return address of a stack frame.
 The C compiler does attempt to provide warnings in the event that it detect that you are doing strange things, such dereferencing an uninitialised pointer or passing variables of the incorrect type to a function. However, the compiler is not able to warn for a subset of potentially dangerous actions and these warnings are often just ignored by sloppy programmers. 
 
-You may argue what it would be better to work with a safe programming language which does not allow us to create pointers to arbitrary memory addresses. However, for working with microcontroller it is essential that we do have the ability to modify specific memory addresses as that is how we interface with the peripherals. 
+You may argue that it would be better to work with a safe programming language which does not allow us to create pointers to arbitrary memory addresses. However, for working with microcontroller it is essential that we do have the ability to modify specific memory addresses as that is how we interface with the peripherals. 
 
 In essence, we require the language to allow us full control over our system but this means we must program carefully or we risk creating faults which could be very difficult to track down.
 

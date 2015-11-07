@@ -4,13 +4,13 @@ The branching we have done up until now has been unconditional branching: the br
 \section{Application Program Status Register}
 The APSR is a special CPU register. It does not have a register number like the other registers and cannot be read or written by normal instructions. However this is a critically important register as it is the source of the conditions for the conditional branching. The APSR holds 4 flags:
 \begin{description}
-\item[Negative (N):] Set if the result of the last operations has was negative. In other words, the msb was a 1. This flag only has a meaning when treating data as signed numbers. 
+\item[Negative (N):] Set if the result of the last operations has was negative. In other words, the most significant bit (msb) was a 1. This flag only has a meaning when treating data as signed numbers. 
 \item[Zero (Z):] Set if all bits of the last operations were 0.
-\item[Carry/Borrow (C):] Set if an \emph{unsigned} overflow occurred. Ie: the actual result of the computation exceeded the bounds of the 32-bit register when treated as an unsigned number.
-\item[Two's Compliment Overflow (V):] Set if a \emph{signed} overflow occurred. Ie: the actual result of the computation exceeded the bounds of the 32-bit register when treated as a signed number. 
+\item[Carry/Borrow (C):] Set if an \emph{unsigned} overflow occurred, i.e. the actual result of the computation exceeded the bounds of the 32-bit register when treated as an unsigned number.
+\item[Two's Compliment Overflow (V):] Set if a \emph{signed} overflow occurred, i.e. the actual result of the computation exceeded the bounds of the 32-bit register when treated as a signed number. 
 \end{description}
 
-Together, these flags provide us with an abundance of information about the result of computations. We are able to ascertain basically any information about the relationship between arbitrary numbers by examining these flags. Not all instructions set the APSR flags. It is necessary to examine the details of the instruction in the Programming Manual in order to see whether the instruction sets the flags. Furthermore it may be necessary to examine the detailed workings of the instruction in the ARMv6-M Reference Manual in order to see which flags are set and how the settings of those flags is determined. However, in general instructions which set the flags have an \texttt{S} at the end of their name. Again (in general) arithmetic operations set/clear all APSR flags while logic operations set/clear only the \texttt{N} or \texttt{Z} flags. 
+Together, these flags provide us with an abundance of information about the result of computations. We are able to ascertain basically any information about the relationship between arbitrary numbers by examining these flags. Not all instructions set the APSR flags. It is necessary to examine the details of the instruction in the Programming Manual in order to see whether the instruction sets the flags. Furthermore it may be necessary to examine the detailed workings of the instruction in the ARMv6-M Reference Manual in order to see which flags are set and how the settings of those flags is determined. However, in general, instructions which set the flags have an \texttt{S} at the end of their name. Again (in general) arithmetic operations set/clear all APSR flags while logic operations set/clear only the \texttt{N} or \texttt{Z} flags. 
 
 \section{Overflow Flags}
 While the Z and N flags are simple to understand, the overflow flags (especially signed but also unsigned) are more tricky. Let's explore them in a bit of detail. 
@@ -25,34 +25,34 @@ For 32 bits the maximum value obtainable is when all of the bits are set. This i
 What happens if we attempt to exceed these limits? An overflow occurs. If we attempt to perform a computation where the true result of the computation is outside of the limits imposed by the finite number of bits in the CPU an overflow occurs. This overflow of the unsigned limits is signalled by the CPU through setting the C flag high.
 
 \subsection{Signed Numbers and the V Flag}
-We've just seen that when interpreting a sequence of bits as unsigned the minimum value is 0. This is often not sufficient as we may want the capability to represent negative numbers. Enter signed numbers. Here, the weights of the msb is $-(2^{n})$ while all the other bit keep their positive weights. 
+We've just seen that when interpreting a sequence of bits as unsigned the minimum value is 0. This is often not sufficient as we may want the capability to represent negative numbers. Enter signed numbers. Here, the weight of the msb is $-(2^{n})$ while all the other bit keep their positive weights. 
 
-This means we have different limits. The largest value which can be represented by a 32-bit signed number is when all of the positive bits are set and the negative bit is clear: 0x7FFF FFFF or 2 147 483 647. The smallest value which can be represented by a 32-bit signed number is when all of the positive bits are clear and the negative bit is set: 0x8000 0000 or -2 147 483 648.
+This means we have different limits. The largest value which can be represented by a 32-bit signed number is when all of the positive bits are set and the negative bit is clear: 0x7FFFFFFF or 2 147 483 647. The smallest value which can be represented by a 32-bit signed number is when all of the positive bits are clear and the negative bit is set: 0x80000000 or -2 147 483 648.
 
 Again, what happens if we attempt to execute a computation where the actual result is outside of the limits of what the 32 bits can hold when interpreted as signed numbers? The CPU signals this error to us with the Two's compliment overflow flag: V. 
 
 The CPU itself has absolutely no idea whether you as the programmer want to treat your data as signed or unsigned numbers. It just takes sequences of bits and performs arithmetic or logic operations on the bits. Hence, to cater for both possible cases (the bits should be treated as signed or the bits should be treated as unsigned) the CPU sets or clears both the C and V flag after computations. If you want your numbers to be treated as unsigned you should be interested in the state of the C flag. If you want your numbers to be treated as signed you should be interested in the V flag. 
 
 \section{Compare Instruction}
-One of the key instructions used in the context of conditional branching is the compare (\texttt{CMP}) instruction. This instruction essentially subtracts two values from each other, disregards the result but updates the flags depending on the result. \texttt{CMP} takes either two registers or a register and an immediate value as operands. The CMP instruction is most often used to set the conditions which the conditional branch will depend on. This is due to the fact that a subtraction tells us a lot about the relationship between two numbers. For example, if the result of a subtraction sets the zero flag we know that the numbers being compared (subtracted) have the same value. Similarly, if the result of the subtraction of B from A clears the V flag it tell us that A is larger than B when viewed as signed numbers. 
+One of the key instructions used in the context of conditional branching is the compare (\texttt{CMP}) instruction. This instruction essentially subtracts two values from each other, disregards the result but updates the flags depending on the result. \texttt{CMP} takes either two registers or a register and an immediate value as operands. The \texttt{CMP} instruction is most often used to set the conditions which the conditional branch will depend on. This is due to the fact that a subtraction tells us a lot about the relationship between two numbers. For example, if the result of a subtraction sets the zero flag we know that the numbers being compared (subtracted) have the same value. Similarly, if the result of the subtraction of B from A clears the V flag it tell us that A is larger than B when viewed as signed numbers. 
 
 The format of the \texttt{CMP} instruction is one of:
 \begin{lstlisting}[fontadjust=true,frame=trBL]
 CMP Rn, Rm
 CMP Rn, #imm8
 \end{lstlisting}
-In the first case, the value of Rm is subtracted from Rn. In the seconds case, the 8-bit immediate number is subtracted from Rn.
+In the first case, the value of \texttt{Rm} is subtracted from \texttt{Rn}. In the seconds case, the 8-bit immediate number is subtracted from \texttt{Rn}.
 
 \subsection{A note on the implementation of the subtract operation}
-In order to minimize the hardware cost of the ALU circuitry, the subtract operations is implemented by adding the bitwise inverse of Rm to Rn, plus 1. You don't really have to worry about this other than to note that this implementation explains why the C or V flag is set when the numbers being compared are equal. For example, the subtraction of the number 42 from the number 42 corresponds to the addition of the numbers 42 and 4294967253 and 1. It should be apparent to you that this result is zero, but sets the carry flag. 
+In order to minimize the hardware cost of the ALU circuitry, the subtract operation is implemented by adding the bitwise inverse of Rm to Rn, plus 1. You don't really have to worry about this other than to note that this implementation explains why the C or V flag is set when the numbers being compared are equal. For example, the subtraction of the number 42 from the number 42 corresponds to the addition of the numbers 42 and 4294967253 and 1. It should be apparent to you that this result is zero, but sets the carry flag. 
 
 
 \section{Condition Code Suffixes} 
-The branch (\texttt{B}) instruction is able to take optional condition code suffixes which specify whether or not the instruction will be executed depending on the state of the flags in the APRS. 
+The branch (\texttt{B}) instruction is able to take optional condition code suffixes which specify whether or not the instruction will be executed depending on the state of the flags in the APSR. 
 These suffixes are shown in \autoref{fig:cc_suff}. A suffix can be appended to the \texttt{B} instruction to turn it into a conditional branch. For example, \texttt{BEQ} will be taken if the result of the last computation produced a zero result. Similarly, \texttt{BNE} will be taken if the result was non-zero. 
 
-The mnemonics for the suffixes are closely related to the compare operation. For example, the BGT (branch if greater than when treated as signed numbers) will be taken if the Rn operand of the CMP instruction is greater than the Rm operand when treated as signed numbers. This is why the CMP and B\{cc\}  instructions go so well together.
-Note that the mnemonic is testing how Rn is related to the immediate number or Rm. So if the condition is some arithmetic relationship, it's asking whether Rn has that property compared to Rm/imm.
+The mnemonics for the suffixes are closely related to the compare operation. For example, the \texttt{BGT} (branch if greater than when treated as signed numbers) will be taken if the \texttt{Rn} operand of the \texttt{CMP} instruction is greater than the \texttt{Rm} operand when treated as signed numbers. This is why the \texttt{CMP} and \texttt{B\{cc\}}  instructions go so well together.
+Note that the mnemonic is testing how \texttt{Rn} is related to the immediate number or \texttt{Rm}. So if the condition is some arithmetic relationship, it's asking whether \texttt{Rn} has that property compared to \texttt{Rm}/\texttt{imm}.
 
 \begin{figure}
 \centering
@@ -63,11 +63,12 @@ Note that the mnemonic is testing how Rn is related to the immediate number or R
 \end{figure}
 
 \section{Branching Based on Individual Bits}
+
 Consider the case where we want to take a branch conditional on the case of a push button being pressed or not pressed. A push button is connected to a single pin which constitutes a single bit in the GPIO\_IDR. Hence, we need a way to make our branch conditional on a single bit being high or low. Put another way, we want to exclude all of the other bits in the IDR from influencing the branch. 
 
-In order to achieve this we have to do two steps:
+In order to achieve this we have to perform two steps:
 \begin{enumerate}
-\item Mask out the bits which we are not interested in. Specifically, set them all to zero. This is done just as we saw earlier in \autoref{sec:set_clear_individual_bits}. We AND all of the bits with 0 except for the bit which we are interested in which we AND with 1.
-\item Compare the result of the mask with 0. If the bit which we are interested in was 0 then the result of the AND will be 0. If the bit that we are interested in was 1 then the result of the AND will be non-zero. Note that this compare does not actually have to be done as the AND instruction sets or clears the zero flag.
+\item Mask out the bits which we are not interested in. Specifically, set them all to zero. This is done as we will see later in \autoref{sec:set_clear_individual_bits}. We \texttt{AND} all of the bits with 0 except for the bit which we are interested in which we \texttt{AND} with 1.
+\item Compare the result of the mask with 0. If the bit which we are interested in was 0 then the result of the \texttt{AND} will be 0. If the bit that we are interested in was 1 then the result of the \texttt{AND} will be non-zero. Note that this compare does not actually have to be done as the \texttt{AND} instruction sets or clears the zero flag.
 \end{enumerate}
 After those two steps (which can actually just be one step) we can take a conditional branch dependant on whether a single bit (a single push button) was set or cleared. 
